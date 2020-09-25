@@ -80,7 +80,7 @@ class HDSoulCube : HDWeapon
 		let plr = HDPlayerPawn(other);
 		if (plr)
 		{
-			A_StartSound("SoulCube/Use", CHAN_WEAPON);
+			A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
 			plr.regenblues += 12 * 6;
 
 			for (int i = 0; i < 360; ++i)
@@ -104,13 +104,13 @@ class HDSoulCube : HDWeapon
 			{
 				if (Iterator.thing is "BFGNecroShard")
 				{
-					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.6);
+					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Souls]++;
 					Iterator.thing.A_Die();
 
 					if (WeaponStatus[SCProp_Souls] == MaxSouls)
 					{
-						owner.A_StartSound("SoulCube/Ready", 10, CHANF_LOCAL, volume: 0.4);
+						owner.A_StartSound("SoulCube/Ready", 10, CHANF_LOCAL, volume: 0.25);
 						for (int i = 0; i < 360; ++i)
 						{
 							if (!random(0, 1))
