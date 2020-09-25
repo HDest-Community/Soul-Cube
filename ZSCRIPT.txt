@@ -127,7 +127,7 @@ class HDSoulCube : HDWeapon
 		Super.DoEffect();
 	}
 
-	const MaxSouls = 10;
+	const MaxSouls = 5;
 
 	Default
 	{
