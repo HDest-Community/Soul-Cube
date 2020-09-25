@@ -1,0 +1,210 @@
+version "4.0"
+
+class SoulCubeHandler : EventHandler
+{
+	override void CheckReplacement(ReplaceEvent e)
+	{
+		if (!e.Replacement)
+		{
+			return;
+		}
+
+		switch (e.Replacement.GetClassName())
+		{
+			case 'Chainsaw':
+				if (random() <= 32)
+				{
+					e.Replacement = "HDSoulCube";
+					e.IsFinal = true;
+				}
+				break;
+		}
+	}
+}
+
+class HDSoulCube : HDWeapon
+{
+	enum SCProperty
+	{
+		SCProp_UseOffset,
+		SCProp_Souls
+	}
+
+	action void A_AddOffset(int ofs)
+	{
+		invoker.WeaponStatus[SCProp_UseOffset] += ofs;
+	}
+
+	override string, double GetPickupSprite() { return "SLCBC0", 1.0; }
+	override string GetHelpText()
+	{
+		return WEPHELP_FIRE.."  Heal yourself\n"
+		..WEPHELP_ALTFIRE.."  Heal ally\n";
+	}
+	override double WeaponBulk() { return 80 * Amount; }
+
+	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
+	{
+		vector2 bob = hpl.hudbob * 0.3;
+		int Offset = WeaponStatus[SCProp_UseOffset];
+		bob.y += Offset;
+		int BaseYOffset = -220;
+		
+		sb.DrawImage("SLCBC0", (0, BaseYOffset + 68) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
+		if (WeaponStatus[SCProp_Souls] == MaxSouls)
+		{
+			sb.DrawString(sb.pSmallFont, "Use us.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		}
+		else
+		{
+			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
+		}
+	}
+
+	override int GetSbarNum(int flags)
+	{
+		let HDHud = HDStatusBar(StatusBar);
+
+		int Souls =  WeaponStatus[SCProp_Souls];
+		HDHud.SavedColour = Souls >= MaxSouls ? Font.CR_GREEN : Font.CR_RED;
+		return Souls;
+	}
+
+	private action void HealTarget(Actor other)
+	{
+		if (!other || Distance3D(other) > 128)
+		{
+			return;
+		}
+
+		let plr = HDPlayerPawn(other);
+		if (plr)
+		{
+			A_StartSound("SoulCube/Use", CHAN_WEAPON);
+			plr.regenblues += 12 * 6;
+
+			for (int i = 0; i < 360; ++i)
+			{
+				if (!random(0, 1))
+				{
+					plr.A_SpawnParticle("1133FF", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, plr.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+				}
+			}
+
+			invoker.WeaponStatus[SCProp_Souls] = 0;
+		}
+	}
+
+	override void DoEffect()
+	{
+		if (WeaponStatus[SCProp_Souls] < MaxSouls && level.time % (35 * 2) == 0 && !random(0, 1))
+		{
+			let Iterator = BlockThingsIterator.Create(owner, 512);
+			while (Iterator.Next())
+			{
+				if (Iterator.thing is "BFGNecroShard")
+				{
+					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.6);
+					WeaponStatus[SCProp_Souls]++;
+					Iterator.thing.A_Die();
+
+					if (WeaponStatus[SCProp_Souls] == MaxSouls)
+					{
+						owner.A_StartSound("SoulCube/Ready", 10, CHANF_LOCAL, volume: 0.4);
+						for (int i = 0; i < 360; ++i)
+						{
+							if (!random(0, 1))
+							{
+								owner.A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, owner.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+
+		Super.DoEffect();
+	}
+
+	const MaxSouls = 10;
+
+	Default
+	{
+		+INVENTORY.INVBAR
+		Inventory.PickupSound "misc/w_pkup";
+		Inventory.PickupMessage "Picked up the soul cube.";
+		Scale 0.5;
+		HDWeapon.RefId "slc";
+		Tag "Soul Cube";
+	}
+
+	States
+	{
+		Spawn:
+			SLCB C -1;
+			Stop;
+		Select0:
+			TNT1 A 0 A_Raise(999);
+			Wait;
+		Deselect0:
+			TNT1 A 0 A_Lower(999);
+			Wait;
+		Ready:
+			TNT1 A 1
+			{
+				if (PressingUser3())
+				{
+					A_MagManager("PickupManager");
+					return;
+				}
+
+				int off = invoker.WeaponStatus[SCProp_UseOffset];
+				if (off > 0)
+				{
+					invoker.WeaponStatus[SCProp_UseOffset] = off * 2 / 3;
+				}
+
+				else if (PressingFire() || PressingAltFire())
+				{
+					SetWeaponState("Lower");
+					return;
+				}
+
+				A_WeaponReady(WRF_ALLOWUSER3 | WRF_NOFIRE);
+			}
+			Goto ReadyEnd;
+		Lower:
+			TNT1 AA 1 A_AddOffset(6);
+			TNT1 AAAA 1 A_AddOffset(14);
+			TNT1 AAAA 1 A_AddOffset(30);
+			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltFire(), "Ready");
+			TNT1 A 1
+			{
+				if (invoker.WeaponStatus[SCProp_Souls] < MaxSouls)
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+
+				if (PressingFire())
+				{
+					SetWeaponState("HealSelf");
+				}
+				else
+				{
+					SetWeaponState("HealOther");
+				}
+			}
+			Wait;
+		HealSelf:
+			TNT1 A 5 HealTarget(self);
+			Goto Ready;
+		HealOther:
+			TNT1 A 5 HealTarget(AimTarget());
+			Goto Ready;
+		User3:
+			#### A 0 A_SelectWeapon("PickupManager");
+			Goto Ready;
+	}
+}

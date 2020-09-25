@@ -1,0 +1,3 @@
+SoulCube/Ready SOULRDY
+SoulCube/Use SOULHEAL
+SoulCube/Ammo SOULAMMO
