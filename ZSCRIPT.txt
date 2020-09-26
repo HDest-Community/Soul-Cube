@@ -69,10 +69,10 @@ class HDSoulCube : HDWeapon
 		return Frag;
 	}
 
-	override void InitializeWepStats(bool idfa)
-	{
-		WeaponStatus[SCProp_Frag] = MaxFrag;
-	}
+	// override void InitializeWepStats(bool idfa)
+	// {
+	// 	WeaponStatus[SCProp_Frag] = MaxFrag;
+	// }
 
 	override void ActualPickup(actor other, bool silent)
 	{
@@ -133,7 +133,7 @@ class HDSoulCube : HDWeapon
 				for (int i = 0; i < 10; ++i)
 				{
 					int PartPitch = random(-90, 90);
-					A_SpawnParticle("44FF44", SPF_RELATIVE, random(5, 45), frandom(1.0, 3.0), random(0, 360), 12 * cos(PartPitch), 0, height / 2 + 12 * sin(PartPitch), frandom(0.25, 1.5) * cos(PartPitch), 0, frandom(0.25, 1.5) * sin(PartPitch));
+					A_SpawnParticle("44FF44", SPF_RELATIVE, random(5, 45), frandom(1.0, 3.0), random(0, 360), 12 * cos(PartPitch), 0, height / 2 + 12 * sin(PartPitch) * 0.8, frandom(0.25, 1.5) * cos(PartPitch), 0, frandom(0.25, 1.5) * sin(PartPitch));
 				}
 			}
 		}
