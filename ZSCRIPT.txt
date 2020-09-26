@@ -26,7 +26,7 @@ class HDSoulCube : HDWeapon
 	enum SCProperty
 	{
 		SCProp_UseOffset,
-		SCProp_Souls
+		SCProp_Frag
 	}
 
 	action void A_AddOffset(int ofs)
@@ -50,7 +50,7 @@ class HDSoulCube : HDWeapon
 		int BaseYOffset = -220;
 		
 		sb.DrawImage("SLCBA3A7", (0, BaseYOffset + 68) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
-		if (WeaponStatus[SCProp_Souls] == MaxSouls)
+		if (WeaponStatus[SCProp_Frag] >= MinFrag)
 		{
 			sb.DrawString(sb.pSmallFont, "Use us.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 		}
@@ -64,39 +64,35 @@ class HDSoulCube : HDWeapon
 	{
 		let HDHud = HDStatusBar(StatusBar);
 
-		int Souls =  WeaponStatus[SCProp_Souls];
-		HDHud.SavedColour = Souls >= MaxSouls ? Font.CR_GREEN : Font.CR_RED;
-		return Souls;
+		int Frag =  WeaponStatus[SCProp_Frag];
+		HDHud.SavedColour = Frag >= MinFrag ? Font.CR_GREEN : Font.CR_RED;
+		return Frag;
 	}
 
-	private action void HealTarget(Actor other)
+	override void InitializeWepStats(bool idfa)
 	{
-		if (!other || Distance3D(other) > 128)
+		WeaponStatus[SCProp_Frag] = MaxFrag;
+	}
+
+	override void ActualPickup(actor other, bool silent)
+	{
+		Super.ActualPickup(other, silent);
+
+		if (!owner)
 		{
 			return;
 		}
 
-		let plr = HDPlayerPawn(other);
-		if (plr)
-		{
-			A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
-			plr.regenblues += 12 * 6;
-
-			for (int i = 0; i < 360; ++i)
-			{
-				if (!random(0, 1))
-				{
-					plr.A_SpawnParticle("1133FF", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, plr.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
-				}
-			}
-
-			invoker.WeaponStatus[SCProp_Souls] = 0;
-		}
+		Active = false;
+		bNOGRAVITY = false;
+		FlyTicker = 0;
+		ReadyToShoot = false;
+		ShootTicker = 0;
 	}
 
 	override void DoEffect()
 	{
-		if (WeaponStatus[SCProp_Souls] < MaxSouls && level.time % (35 * 3) == 0 && !random(0, 1))
+		if (WeaponStatus[SCProp_Frag] < MaxFrag && level.time % (35 * 3) == 0 && !random(0, 1))
 		{
 			let Iterator = BlockThingsIterator.Create(owner, 512);
 			while (Iterator.Next())
@@ -104,17 +100,17 @@ class HDSoulCube : HDWeapon
 				if (Iterator.thing is "BFGNecroShard")
 				{
 					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.45);
-					WeaponStatus[SCProp_Souls]++;
+					WeaponStatus[SCProp_Frag]++;
 					Iterator.thing.Destroy();
 
-					if (WeaponStatus[SCProp_Souls] == MaxSouls)
+					if (WeaponStatus[SCProp_Frag] == MinFrag)
 					{
 						owner.A_StartSound("SoulCube/Ready", 10, CHANF_LOCAL, volume: 0.25);
 						for (int i = 0; i < 360; ++i)
 						{
 							if (!random(0, 1))
 							{
-								owner.A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, owner.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+								owner.A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), frandom(2.0, 4.0), i, random(8, 42), 0, frandom(0, owner.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
 							}
 						}
 					}
@@ -126,10 +122,35 @@ class HDSoulCube : HDWeapon
 		Super.DoEffect();
 	}
 
-	const MaxSouls = 5;
+	override void Tick()
+	{
+		if (Active)
+		{
+			Angle += 10;
+
+			if (ReadyToShoot)
+			{
+				for (int i = 0; i < 10; ++i)
+				{
+					int PartPitch = random(-90, 90);
+					A_SpawnParticle("44FF44", SPF_RELATIVE, random(5, 45), frandom(1.0, 3.0), random(0, 360), 12 * cos(PartPitch), 0, height / 2 + 12 * sin(PartPitch), frandom(0.25, 1.5) * cos(PartPitch), 0, frandom(0.25, 1.5) * sin(PartPitch));
+				}
+			}
+		}
+
+		Super.Tick();
+	}
+
+	const MinFrag = 5;
+	const MaxFrag = 20;
+	bool Active;
+	bool ReadyToShoot;
+	int FlyTicker;
+	int ShootTicker;
 
 	Default
 	{
+		Height 20;
 		+WEAPON.WIMPY_WEAPON
 		+INVENTORY.INVBAR
 		Inventory.PickupSound "misc/w_pkup";
@@ -142,8 +163,66 @@ class HDSoulCube : HDWeapon
 	States
 	{
 		Spawn:
-			SLCB A -1;
-			Stop;
+			SLCB A 1
+			{
+				if (invoker.Active)
+				{
+					invoker.FlyTicker++;
+					if (!invoker.ReadyToShoot)
+					{
+						vel.xy *= 0.96;
+						vel.z += 0.05;
+						if (pos.z - floorz > 64)
+						{
+							A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+							invoker.ReadyToShoot = true;
+						}
+					}
+					else
+					{
+						vel *= 0.94;
+						if (invoker.WeaponStatus[SCProp_Frag] < 1 || invoker.FlyTicker > 35 * 13)
+						{
+							invoker.bNOGRAVITY = false;
+							invoker.Active = false;
+						}
+
+						if (invoker.ShootTicker++ >= 20)
+						{
+							invoker.ShootTicker = 0;
+							double OldAngle = Angle;
+							let MainIterator = BlockThingsIterator.Create(invoker, 512);
+							while (MainIterator.Next())
+							{
+								Actor ZapTarget = MainIterator.thing;
+								if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+								{
+									invoker.WeaponStatus[SCProp_Frag]--;
+									A_Face(ZapTarget, 0, 0);
+									A_CustomRailgun(0, 0, "", "55FF88", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 50.0, "SoulPuff", 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
+
+									// [Ace] Give nearby players some blues.
+									let PlayerIterator = BlockThingsIterator.Create(invoker, 512);
+									while (PlayerIterator.Next())
+									{
+										Actor HealTarget = PlayerIterator.thing;
+										let plr = HDPlayerPawn(HealTarget);
+										if (plr && CheckSight(HealTarget))
+										{
+											A_Face(HealTarget, 0, 0);
+											A_CustomRailgun(0, 0, "", "1133FF", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 50.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
+											plr.regenblues += 4;
+										}
+									}
+									break;
+								}
+							}
+							Angle = OldAngle;
+						}
+					}
+				}
+			}
+			Loop;
 		Select0:
 			TNT1 A 0 A_Raise(999);
 			Wait;
@@ -181,7 +260,7 @@ class HDSoulCube : HDWeapon
 			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltFire(), "Ready");
 			TNT1 A 1
 			{
-				if (invoker.WeaponStatus[SCProp_Souls] < MaxSouls)
+				if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
 				{
 					SetWeaponState("Nope");
 					return;
@@ -189,22 +268,33 @@ class HDSoulCube : HDWeapon
 
 				if (PressingFire())
 				{
-					SetWeaponState("HealSelf");
-				}
-				else
-				{
-					SetWeaponState("HealOther");
+					DropInventory(invoker);
+					invoker.Active = true;
+					invoker.bNOGRAVITY = true;
 				}
 			}
 			Wait;
-		HealSelf:
-			TNT1 A 5 HealTarget(self);
-			Goto Ready;
-		HealOther:
-			TNT1 A 5 HealTarget(AimTarget());
-			Goto Ready;
-		User3:
-			#### A 0 A_SelectWeapon("PickupManager");
-			Goto Ready;
+	}
+}
+
+class SoulPuff : BFGPuff
+{
+	States
+	{
+		Spawn:
+			BFE2 A 1 Bright NoDelay
+			{
+				if (target)
+				{
+					target = target.target;
+				}
+				A_StartSound("misc/bfgrail", 9005);
+			}
+			BFE2 A 3 Bright
+			{
+				A_Explode(random(196, 320), 64, 0);
+			}
+			BFE2 ABCDE 2 Bright A_FadeOut(0.1);
+			Stop;
 	}
 }
