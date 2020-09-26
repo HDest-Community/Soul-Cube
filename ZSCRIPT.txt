@@ -106,7 +106,7 @@ class HDSoulCube : HDWeapon
 				{
 					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Souls]++;
-					Iterator.thing.A_Die();
+					Iterator.thing.Destroy();
 
 					if (WeaponStatus[SCProp_Souls] == MaxSouls)
 					{
