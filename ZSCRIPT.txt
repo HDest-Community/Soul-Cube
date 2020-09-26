@@ -15,7 +15,6 @@ class SoulCubeHandler : EventHandler
 				if (random[cuberand]() <= 32)
 				{
 					e.Replacement = "HDSoulCube";
-					e.IsFinal = true;
 				}
 				break;
 		}
