@@ -150,7 +150,7 @@ class HDSoulCube : HDWeapon
 
 	Default
 	{
-		Height 20;
+		Height 15;
 		+WEAPON.WIMPY_WEAPON
 		+INVENTORY.INVBAR
 		Inventory.PickupSound "misc/w_pkup";
