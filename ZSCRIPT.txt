@@ -12,7 +12,7 @@ class SoulCubeHandler : EventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'Chainsaw':
-				if (random() <= 32)
+				if (random[cuberand]() <= 32)
 				{
 					e.Replacement = "HDSoulCube";
 					e.IsFinal = true;
