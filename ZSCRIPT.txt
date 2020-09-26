@@ -97,7 +97,7 @@ class HDSoulCube : HDWeapon
 
 	override void DoEffect()
 	{
-		if (WeaponStatus[SCProp_Souls] < MaxSouls && level.time % (35 * 2) == 0 && !random(0, 1))
+		if (WeaponStatus[SCProp_Souls] < MaxSouls && level.time % (35 * 3) == 0 && !random(0, 1))
 		{
 			let Iterator = BlockThingsIterator.Create(owner, 512);
 			while (Iterator.Next())
