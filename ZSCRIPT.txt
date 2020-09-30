@@ -11,7 +11,7 @@ class SoulCubeHandler : StaticEventHandler
 
 		switch (e.Replacement.GetClassName())
 		{
-			case 'Chainsaw':
+			case 'Lumberjack':
 				if (random[cuberand]() <= 32)
 				{
 					e.Replacement = "HDSoulCube";
@@ -151,7 +151,6 @@ class HDSoulCube : HDWeapon
 	Default
 	{
 		Height 15;
-		+WEAPON.WIMPY_WEAPON
 		+INVENTORY.INVBAR
 		Inventory.PickupSound "misc/w_pkup";
 		Inventory.PickupMessage "Picked up the soul cube.";
