@@ -38,7 +38,7 @@ class HDSoulCube : HDWeapon
 	override string GetHelpText()
 	{
 		return WEPHELP_FIRE.."  Attack\n"
-		..WEPHELP_FIRE.."+"..WEPHELP_ZOOM.."  Grant spiritual armor";
+		..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor";
 	}
 	override double WeaponBulk() { return 80 * Amount; }
 
@@ -178,10 +178,6 @@ class HDSoulCube : HDWeapon
 					invoker.FlyTicker++;
 					if (!invoker.ReadyToShoot)
 					{
-						if (invoker.SpiritArmor)
-						{
-							vel *= 0.97;
-						}
 						vel.xy *= 0.96;
 						vel.z += 0.05;
 						if (pos.z - floorz > 64)
@@ -297,7 +293,7 @@ class HDSoulCube : HDWeapon
 				if (PressingFire())
 				{
 					invoker.SpiritArmor = false;
-					if (PressingZoom() && invoker.WeaponStatus[SCProp_Frag] == MaxFrag)
+					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] == MaxFrag)
 					{
 						invoker.SpiritArmor = true;
 					}
