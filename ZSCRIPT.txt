@@ -193,7 +193,7 @@ class HDSoulCube : HDWeapon
 					else
 					{
 						vel *= 0.93;
-						if (invoker.WeaponStatus[SCProp_Frag] < 1 || invoker.FlyTicker > 35 * 13)
+						if (invoker.WeaponStatus[SCProp_Frag] < 1 || invoker.FlyTicker > 35 * 30)
 						{
 							invoker.bNOGRAVITY = false;
 							invoker.Active = false;
