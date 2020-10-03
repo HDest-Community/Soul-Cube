@@ -139,6 +139,15 @@ class HDSoulCube : HDWeapon
 		Super.Tick();
 	}
 
+	override string PickupMessage()
+	{
+		if (!random(0, 32))
+		{
+			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you coob\".";
+		}
+		return PickupMsg;
+	}
+
 	const MinFrag = 5;
 	const MaxFrag = 20;
 	const MaxRange = 512;
