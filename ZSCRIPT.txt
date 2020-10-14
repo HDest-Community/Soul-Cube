@@ -161,6 +161,7 @@ class HDSoulCube : HDWeapon
 	{
 		Height 15;
 		+INVENTORY.INVBAR
+		+SEEINVISIBLE
 		Inventory.PickupSound "misc/w_pkup";
 		Inventory.PickupMessage "Picked up the soul cube.";
 		Scale 0.5;
