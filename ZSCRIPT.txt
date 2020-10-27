@@ -138,7 +138,7 @@ class HDSoulCube : HDWeapon
 	{
 		Speed 5;
 		Height 15;
-		+SEEKERMISSILE
+		+SLIDESONWALLS
 		+INVENTORY.INVBAR
 		+SEEINVISIBLE
 		Inventory.PickupSound "misc/w_pkup";
