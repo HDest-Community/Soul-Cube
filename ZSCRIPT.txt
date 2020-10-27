@@ -83,10 +83,13 @@ class HDSoulCube : HDWeapon
 			return;
 		}
 
+		if (Destination)
+		{
+			Destination.Destroy();
+		}
+
 		Active = false;
 		bNOGRAVITY = false;
-		FlyTicker = 0;
-		ReadyToShoot = false;
 		ShootTicker = 0;
 	}
 
@@ -115,35 +118,11 @@ class HDSoulCube : HDWeapon
 		Super.DoEffect();
 	}
 
-	override void Tick()
-	{
-		if (Active)
-		{
-			Angle += 10;
-
-			if (ReadyToShoot)
-			{
-				for (int i = 0; i < 7; ++i)
-				{
-					int PartPitch = random(-85, 85);
-					A_SpawnParticle("44FF44", SPF_RELATIVE, random(5, 45), frandom(1.0, 3.0), random(0, 360), 12 * cos(PartPitch), 0, height / 2 + 12 * sin(PartPitch) * 0.8, frandom(0.25, 1.5) * cos(PartPitch), 0, frandom(0.25, 1.5) * sin(PartPitch));
-				}
-
-				for (double i = 0; i < 360; i += 0.5)
-				{
-					A_SpawnParticle("44FF44", SPF_RELATIVE, 1, 16, i, MaxRange, 0, -(pos.z - floorz));
-				}
-			}
-		}
-
-		Super.Tick();
-	}
-
 	override string PickupMessage()
 	{
 		if (!random(0, 32))
 		{
-			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you coob\".";
+			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuob\".";
 		}
 		return PickupMsg;
 	}
@@ -152,14 +131,14 @@ class HDSoulCube : HDWeapon
 	const MaxFrag = 20;
 	const MaxRange = 512;
 	bool Active;
-	bool SpiritArmor;
-	bool ReadyToShoot;
-	int FlyTicker;
 	int ShootTicker;
+	CubeDestination Destination;
 
 	Default
 	{
+		Speed 5;
 		Height 15;
+		+SEEKERMISSILE
 		+INVENTORY.INVBAR
 		+SEEINVISIBLE
 		Inventory.PickupSound "misc/w_pkup";
@@ -176,78 +155,75 @@ class HDSoulCube : HDWeapon
 			{
 				if (invoker.Active)
 				{
-					invoker.FlyTicker++;
-					if (!invoker.ReadyToShoot)
+					invoker.Angle += 10;
+
+					double OldAngle = Angle;
+					if (invoker.Destination)
 					{
-						vel.xy *= 0.96;
-						vel.z += 0.05;
-						if (pos.z - floorz > 64)
+						if (invoker.Distance3D(invoker.Destination) > 48)
 						{
-							A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
-							invoker.ReadyToShoot = true;
+							vector3 diff = level.Vec3Diff(invoker.pos, invoker.Destination.pos);
+							double PitchToDest = atan2(diff.z, diff.xy.length());
+
+							A_Face(invoker.Destination, 160, 30);
+							A_ChangeVelocity(0.5 * cos(PitchToDest), 0, 0.5 * sin(PitchToDest), CVF_RELATIVE);
+							vel.x = clamp(vel.x, -6, 6);
+							vel.y = clamp(vel.y, -6, 6);
+							vel.z = clamp(vel.z, -6, 6);
+						}
+						else
+						{
+							A_ScaleVelocity(0.90);
 						}
 					}
-					else
-					{
-						vel *= 0.93;
-						if (invoker.WeaponStatus[SCProp_Frag] < 1 || invoker.FlyTicker > 35 * 30)
-						{
-							invoker.bNOGRAVITY = false;
-							invoker.Active = false;
-						}
 
-						if (invoker.ShootTicker++ >= 20)
+					for (double i = 0; i < 360; i += 0.75)
+					{
+						A_SpawnParticle("44FF44", SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz));
+					}
+
+					if (invoker.WeaponStatus[SCProp_Frag] < 1)
+					{
+						invoker.bNOGRAVITY = false;
+						invoker.Active = false;
+						if (invoker.tracer)
 						{
-							invoker.ShootTicker = 0;
-							double OldAngle = Angle;
-							if (invoker.SpiritArmor)
+							invoker.tracer.Destroy();
+						}
+					}
+
+					if (invoker.ShootTicker++ >= 20)
+					{
+						invoker.ShootTicker = 0;
+						
+						let MainIterator = BlockThingsIterator.Create(invoker, MaxRange);
+						while (MainIterator.Next())
+						{
+							Actor ZapTarget = MainIterator.thing;
+							if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 							{
-								// [Ace] Give nearby players some spiritual armour.
+								invoker.WeaponStatus[SCProp_Frag]--;
+								A_Face(ZapTarget, 0, 0);
+								A_CustomRailgun(0, 0, "", "55FF88", RGF_CENTERZ | RGF_SILENT | RGF_FULLBRIGHT, 0, 10.0, "SoulPuff", 0, 0, 2048, 18, 0.2, 1.0, limit: 1, veleffect: 0); // [Ace] The limit is so that you don't block the cube's shots. Also extra damage I suppose.
+
+								// [Ace] Give nearby players some blues.
 								let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
 								while (PlayerIterator.Next())
 								{
-									let SpiritTarget = HDPlayerPawn(PlayerIterator.thing);
-									if (SpiritTarget && CheckSight(SpiritTarget))
+									Actor HealTarget = PlayerIterator.thing;
+									let plr = HDPlayerPawn(HealTarget);
+									if (plr && CheckSight(HealTarget))
 									{
-										A_Face(SpiritTarget, 0, 0);
-										SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
-										A_CustomRailgun(0, 0, "", "44FF44", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 50.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
-										invoker.WeaponStatus[SCProp_Frag] = 0;
+										A_Face(HealTarget, 0, 0);
+										A_CustomRailgun(0, 0, "", "1133FF", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 2.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
+										plr.regenblues += 4;
 									}
 								}
+								break;
 							}
-							else
-							{
-								let MainIterator = BlockThingsIterator.Create(invoker, MaxRange);
-								while (MainIterator.Next())
-								{
-									Actor ZapTarget = MainIterator.thing;
-									if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
-									{
-										invoker.WeaponStatus[SCProp_Frag]--;
-										A_Face(ZapTarget, 0, 0);
-										A_CustomRailgun(0, 0, "", "55FF88", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 50.0, "SoulPuff", 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
-
-										// [Ace] Give nearby players some blues.
-										let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
-										while (PlayerIterator.Next())
-										{
-											Actor HealTarget = PlayerIterator.thing;
-											let plr = HDPlayerPawn(HealTarget);
-											if (plr && CheckSight(HealTarget))
-											{
-												A_Face(HealTarget, 0, 0);
-												A_CustomRailgun(0, 0, "", "1133FF", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 50.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
-												plr.regenblues += 4;
-											}
-										}
-										break;
-									}
-								}
-							}
-							Angle = OldAngle;
 						}
 					}
+					Angle = OldAngle;
 				}
 			}
 			Loop;
@@ -293,12 +269,35 @@ class HDSoulCube : HDWeapon
 
 				if (PressingFire())
 				{
-					invoker.SpiritArmor = false;
 					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] == MaxFrag)
 					{
-						invoker.SpiritArmor = true;
+						let PlayerIterator = BlockThingsIterator.Create(self, MaxRange);
+						while (PlayerIterator.Next())
+						{
+							let SpiritTarget = HDPlayerPawn(PlayerIterator.thing);
+							if (SpiritTarget && CheckSight(SpiritTarget))
+							{
+								for (int i = 0; i < 360; ++i)
+								{
+									if (!random(0, 2))
+									{
+										SpiritTarget.A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, SpiritTarget.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+									}
+								}
+								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
+								invoker.WeaponStatus[SCProp_Frag] = 0;
+							}
+						}
+					
+						SetWeaponState("Nope");
+						return;
 					}
+
+					invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
+					invoker.Destination.master = self;
+
 					DropInventory(invoker);
+					invoker.A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
 					invoker.Active = true;
 					invoker.bNOGRAVITY = true;
 				}
@@ -326,5 +325,30 @@ class SoulPuff : BFGPuff
 			}
 			BFE2 ABCDE 2 Bright A_FadeOut(0.1);
 			Stop;
+	}
+}
+
+class CubeDestination : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+	}
+
+	States
+	{
+		Spawn:
+			TNT1 A 1
+			{
+				if (master)
+				{
+					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
+				}
+				else
+				{
+					Destroy();
+				}
+			}
+			Loop;
 	}
 }
