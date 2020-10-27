@@ -157,15 +157,27 @@ class HDSoulCube : HDWeapon
 				{
 					invoker.Angle += 10;
 
-					double OldAngle = Angle;
+					// [Ace] Put out fire. I have no idea if this actually does anything.
+					let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
+					while (PlayerIterator.Next())
+					{
+						let plr = HDPlayerPawn(PlayerIterator.thing);
+						if (plr && CheckSight(plr))
+						{
+							plr.A_GiveInventory("HDFireDouse", 5);
+						}
+					}
+
+					// [Ace] Move towards owner.
+					double OldAngle = invoker.Angle;
 					if (invoker.Destination)
 					{
-						if (invoker.Distance3D(invoker.Destination) > 48)
+						if (invoker.Distance2D(invoker.Destination) > 48 || abs(invoker.pos.z - invoker.Destination.pos.z) > 24)
 						{
 							vector3 diff = level.Vec3Diff(invoker.pos, invoker.Destination.pos);
 							double PitchToDest = atan2(diff.z, diff.xy.length());
 
-							A_Face(invoker.Destination, 160, 30);
+							A_Face(invoker.Destination, 180, 45);
 							A_ChangeVelocity(0.5 * cos(PitchToDest), 0, 0.5 * sin(PitchToDest), CVF_RELATIVE);
 							vel.x = clamp(vel.x, -6, 6);
 							vel.y = clamp(vel.y, -6, 6);
@@ -177,11 +189,13 @@ class HDSoulCube : HDWeapon
 						}
 					}
 
+					// [Ace] Draw range circle.
 					for (double i = 0; i < 360; i += 0.75)
 					{
 						A_SpawnParticle("44FF44", SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz));
 					}
 
+					// [Ace] Drop down when out of charges.
 					if (invoker.WeaponStatus[SCProp_Frag] < 1)
 					{
 						invoker.bNOGRAVITY = false;
@@ -210,11 +224,10 @@ class HDSoulCube : HDWeapon
 								let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
 								while (PlayerIterator.Next())
 								{
-									Actor HealTarget = PlayerIterator.thing;
-									let plr = HDPlayerPawn(HealTarget);
-									if (plr && CheckSight(HealTarget))
+									let plr = HDPlayerPawn(PlayerIterator.thing);
+									if (plr && CheckSight(plr))
 									{
-										A_Face(HealTarget, 0, 0);
+										A_Face(plr, 0, 0);
 										A_CustomRailgun(0, 0, "", "1133FF", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 2.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
 										plr.regenblues += 4;
 									}
