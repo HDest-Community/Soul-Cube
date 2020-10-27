@@ -123,9 +123,9 @@ class HDSoulCube : HDWeapon
 
 			if (ReadyToShoot)
 			{
-				for (int i = 0; i < 10; ++i)
+				for (int i = 0; i < 7; ++i)
 				{
-					int PartPitch = random(-90, 90);
+					int PartPitch = random(-85, 85);
 					A_SpawnParticle("44FF44", SPF_RELATIVE, random(5, 45), frandom(1.0, 3.0), random(0, 360), 12 * cos(PartPitch), 0, height / 2 + 12 * sin(PartPitch) * 0.8, frandom(0.25, 1.5) * cos(PartPitch), 0, frandom(0.25, 1.5) * sin(PartPitch));
 				}
 
