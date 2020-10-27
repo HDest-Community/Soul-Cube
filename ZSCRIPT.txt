@@ -354,7 +354,7 @@ class CubeDestination : Actor
 		Spawn:
 			TNT1 A 1
 			{
-				if (master)
+				if (master && master.Health > 0)
 				{
 					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
 				}
