@@ -140,7 +140,7 @@ class HDSoulCube : HDWeapon
 		Height 15;
 		+SLIDESONWALLS
 		+INVENTORY.INVBAR
-		+SEEINVISIBLE
+		+NODAMAGETHRUST
 		Inventory.PickupSound "misc/w_pkup";
 		Inventory.PickupMessage "Picked up the soul cube.";
 		Scale 0.5;
@@ -206,37 +206,57 @@ class HDSoulCube : HDWeapon
 						}
 					}
 
-					if (invoker.ShootTicker++ >= 20)
+					Array<Actor> TargetList;
+					let EnemyIterator = BlockThingsIterator.Create(invoker, MaxRange);
+					while (EnemyIterator.Next())
 					{
-						invoker.ShootTicker = 0;
-						
-						let MainIterator = BlockThingsIterator.Create(invoker, MaxRange);
-						while (MainIterator.Next())
+						Actor ZapTarget = EnemyIterator.thing;
+						if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 						{
-							Actor ZapTarget = MainIterator.thing;
-							if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+							for (int i = 0; i < 2; ++i)
 							{
-								invoker.WeaponStatus[SCProp_Frag]--;
-								A_Face(ZapTarget, 0, 0);
-								A_CustomRailgun(0, 0, "", "55FF88", RGF_CENTERZ | RGF_SILENT | RGF_FULLBRIGHT, 0, 10.0, "SoulPuff", 0, 0, 2048, 18, 0.2, 1.0, limit: 1, veleffect: 0); // [Ace] The limit is so that you don't block the cube's shots. Also extra damage I suppose.
-
-								// [Ace] Give nearby players some blues.
-								let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
-								while (PlayerIterator.Next())
-								{
-									let plr = HDPlayerPawn(PlayerIterator.thing);
-									if (plr && CheckSight(plr))
-									{
-										A_Face(plr, 0, 0);
-										A_CustomRailgun(0, 0, "", "1133FF", RGF_CENTERZ | RGF_SILENT | RGF_NOPIERCING | RGF_FULLBRIGHT, 0, 2.0, null, 0, 0, 2048, 18, 0.2, 1.0, veleffect: 0);
-										plr.regenblues += 4;
-									}
-								}
+								ZapTarget.A_SpawnParticle(0x44FF44, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
+							}
+							TargetList.Push(ZapTarget);
+							if (TargetList.Size() == 3)
+							{
 								break;
 							}
 						}
 					}
-					Angle = OldAngle;
+
+					int Size = TargetList.Size();
+					if (Size > 0 && invoker.ShootTicker++ >= 35)
+					{
+						invoker.ShootTicker = 0;
+						invoker.WeaponStatus[SCProp_Frag]--;
+						for (int i = 0; i < Size; ++i)
+						{
+							if (TargetList[i])
+							{
+								TargetList[i].DamageMobj(master, master, 150, 'Holy');
+								for (int j = 0; j < 80; ++j)
+								{
+									TargetList[i].A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
+								}
+							}
+						}
+
+						// [Ace] Give nearby players some blues.
+						let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
+						while (PlayerIterator.Next())
+						{
+							let plr = HDPlayerPawn(PlayerIterator.thing);
+							if (plr && CheckSight(plr))
+							{
+								plr.regenblues += 4 * Size;
+							}
+						}
+					}
+					else if (Size == 0)
+					{
+						invoker.ShootTicker = 0;
+					}
 				}
 			}
 			Loop;
@@ -317,28 +337,6 @@ class HDSoulCube : HDWeapon
 				}
 			}
 			Wait;
-	}
-}
-
-class SoulPuff : BFGPuff
-{
-	States
-	{
-		Spawn:
-			BFE2 A 1 Bright NoDelay
-			{
-				if (target)
-				{
-					target = target.target;
-				}
-				A_StartSound("misc/bfgrail", 9005);
-			}
-			BFE2 A 3 Bright
-			{
-				A_Explode(random(196, 320), 64, 0);
-			}
-			BFE2 ABCDE 2 Bright A_FadeOut(0.1);
-			Stop;
 	}
 }
 
