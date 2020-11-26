@@ -141,6 +141,7 @@ class HDSoulCube : HDWeapon
 		+SLIDESONWALLS
 		+INVENTORY.INVBAR
 		+NODAMAGETHRUST
+		+HDWEAPON.DONTFISTONDROP
 		Inventory.PickupSound "misc/w_pkup";
 		Inventory.PickupMessage "Picked up the soul cube.";
 		Scale 0.5;
