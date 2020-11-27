@@ -326,7 +326,7 @@ class HDSoulCube : HDWeapon
 						while (PlayerIterator.Next())
 						{
 							let SpiritTarget = HDPlayerPawn(PlayerIterator.thing);
-							if (SpiritTarget && CheckSight(SpiritTarget))
+							if (SpiritTarget && (SpiritTarget == self || CheckSight(SpiritTarget)))
 							{
 								for (int i = 0; i < 360; ++i)
 								{
