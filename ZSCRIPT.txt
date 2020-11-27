@@ -241,8 +241,9 @@ class HDSoulCube : HDWeapon
 						}
 					}
 
+					bool Overcharged = invoker.WeaponStatus[SCProp_Frag] > MaxFrag;
 					int Size = TargetList.Size();
-					if (Size > 0 && invoker.ShootTicker++ >= 35)
+					if (Size > 0 && invoker.ShootTicker++ >= Overcharged ? 17 : 35)
 					{
 						invoker.ShootTicker = 0;
 						invoker.WeaponStatus[SCProp_Frag]--;
@@ -250,7 +251,7 @@ class HDSoulCube : HDWeapon
 						{
 							if (TargetList[i])
 							{
-								TargetList[i].DamageMobj(master, master, 150, 'Holy');
+								TargetList[i].DamageMobj(master, master, Overcharged ? 300 : 150, 'Holy');
 								for (int j = 0; j < 80; ++j)
 								{
 									TargetList[i].A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
