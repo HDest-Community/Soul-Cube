@@ -69,6 +69,21 @@ class HDSoulCube : HDWeapon
 		return Frag;
 	}
 
+	override bool AddSpareWeapon(actor newowner)
+	{
+		let Cube = HDSoulCube(newowner.FindInventory("HDSoulCube"));
+		if (Cube)
+		{
+			if (self != Cube)
+			{
+				A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 10;
+				Destroy();
+			}
+		}
+		return false;
+	}
+
 	// override void InitializeWepStats(bool idfa)
 	// {
 	// 	WeaponStatus[SCProp_Frag] = MaxFrag;
@@ -303,7 +318,7 @@ class HDSoulCube : HDWeapon
 
 				if (PressingFire())
 				{
-					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] == MaxFrag)
+					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] >= MaxFrag)
 					{
 						let PlayerIterator = BlockThingsIterator.Create(self, MaxRange);
 						while (PlayerIterator.Next())
@@ -319,7 +334,7 @@ class HDSoulCube : HDWeapon
 									}
 								}
 								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
-								invoker.WeaponStatus[SCProp_Frag] = 0;
+								invoker.WeaponStatus[SCProp_Frag] -= MaxFrag;
 							}
 						}
 					
