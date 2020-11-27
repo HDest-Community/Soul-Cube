@@ -173,6 +173,8 @@ class HDSoulCube : HDWeapon
 				{
 					invoker.Angle += 10;
 
+					bool Overcharged = invoker.WeaponStatus[SCProp_Frag] > MaxFrag;
+
 					// [Ace] Put out fire. I have no idea if this actually does anything.
 					let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
 					while (PlayerIterator.Next())
@@ -208,7 +210,7 @@ class HDSoulCube : HDWeapon
 					// [Ace] Draw range circle.
 					for (double i = 0; i < 360; i += 0.75)
 					{
-						A_SpawnParticle("44FF44", SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz));
+						A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz));
 					}
 
 					// [Ace] Drop down when out of charges.
@@ -231,7 +233,7 @@ class HDSoulCube : HDWeapon
 						{
 							for (int i = 0; i < 2; ++i)
 							{
-								ZapTarget.A_SpawnParticle(0x44FF44, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
+								ZapTarget.A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
 							}
 							TargetList.Push(ZapTarget);
 							if (TargetList.Size() == 3)
@@ -240,10 +242,9 @@ class HDSoulCube : HDWeapon
 							}
 						}
 					}
-
-					bool Overcharged = invoker.WeaponStatus[SCProp_Frag] > MaxFrag;
+					
 					int Size = TargetList.Size();
-					if (Size > 0 && invoker.ShootTicker++ >= Overcharged ? 17 : 35)
+					if (Size > 0 && invoker.ShootTicker++ >= (Overcharged ? 17 : 35))
 					{
 						invoker.ShootTicker = 0;
 						invoker.WeaponStatus[SCProp_Frag]--;
@@ -254,7 +255,7 @@ class HDSoulCube : HDWeapon
 								TargetList[i].DamageMobj(master, master, Overcharged ? 300 : 150, 'Holy');
 								for (int j = 0; j < 80; ++j)
 								{
-									TargetList[i].A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
+									TargetList[i].A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
 								}
 							}
 						}
