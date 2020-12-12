@@ -58,6 +58,18 @@ class HDSoulCube : HDWeapon
 		{
 			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
 		}
+
+		int SpiritArmorCount = sb.GetAmount("SpiritualArmour");
+		string ProtectionString = "\c[Red]You are not protected.\c-";
+
+		switch (SpiritArmorCount)
+		{
+			case 1: ProtectionString = "\c[Orange]You are barely protected.\c-"; break;
+			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul.\c-"; break;
+			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm.\c-"; break;
+		}
+
+		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset + 130) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 	}
 
 	override int GetSbarNum(int flags)
