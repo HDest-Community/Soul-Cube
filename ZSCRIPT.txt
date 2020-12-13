@@ -131,8 +131,7 @@ class HDSoulCube : HDWeapon
 			{
 				int MaxGiveAmount = 1000 - other.CountInv(cls);
 				int GiveAmount = min(InvAmount, MaxGiveAmount);
-				Console.Printf("%i, %i", MaxGiveAmount, GiveAmount);
-
+				
 				other.A_GiveInventory(cls, GiveAmount);
 				A_TakeInventory(cls, GiveAmount);
 
