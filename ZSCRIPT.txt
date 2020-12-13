@@ -363,7 +363,7 @@ class HDSoulCube : HDWeapon
 									}
 									if (LastIndex > -1)
 									{
-										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + int(1.34 * Size), Battery.MaxPerUnit);
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
 									}
 									else
 									{
