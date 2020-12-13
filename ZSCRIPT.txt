@@ -38,7 +38,8 @@ class HDSoulCube : HDWeapon
 	override string GetHelpText()
 	{
 		return WEPHELP_FIRE.."  Attack\n"
-		..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor";
+		..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor\n"
+		..WEPHELP_ZOOM.."  Toggle vaccuum mode";
 	}
 	override double WeaponBulk() { return 80 * Amount; }
 
@@ -59,6 +60,7 @@ class HDSoulCube : HDWeapon
 			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
 		}
 
+		// [Ace] Spiritual armor.
 		int SpiritArmorCount = sb.GetAmount("SpiritualArmour");
 		string ProtectionString = "\c[Red]You are not protected.\c-";
 
@@ -70,6 +72,9 @@ class HDSoulCube : HDWeapon
 		}
 
 		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset + 130) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+
+		// [Ace] Roomba stuff.
+		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset + 140) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 	}
 
 	override int GetSbarNum(int flags)
@@ -103,9 +108,7 @@ class HDSoulCube : HDWeapon
 
 	override void ActualPickup(actor other, bool silent)
 	{
-		Super.ActualPickup(other, silent);
-
-		if (!owner)
+		if (!other)
 		{
 			return;
 		}
@@ -115,9 +118,37 @@ class HDSoulCube : HDWeapon
 			Destination.Destroy();
 		}
 
+		for (int i = 0; i < VacuumedClasses.Size(); ++i)
+		{
+			Class<Inventory> cls = VacuumedClasses[i];
+			if (!cls)
+			{
+				continue;
+			}
+			
+			int InvAmount = CountInv(cls);
+			if (InvAmount > 0)
+			{
+				int MaxGiveAmount = 1000 - other.CountInv(cls);
+				int GiveAmount = min(InvAmount, MaxGiveAmount);
+				Console.Printf("%i, %i", MaxGiveAmount, GiveAmount);
+
+				other.A_GiveInventory(cls, GiveAmount);
+				A_TakeInventory(cls, GiveAmount);
+
+				if (InvAmount > GiveAmount)
+				{
+					// [Ace] Drop excess if player can't pick up more.
+					A_DropInventory(cls, InvAmount - GiveAmount);
+				}
+			}
+		}
+
 		Active = false;
 		bNOGRAVITY = false;
 		ShootTicker = 0;
+
+		Super.ActualPickup(other, silent);
 	}
 
 	override void DoEffect()
@@ -154,10 +185,44 @@ class HDSoulCube : HDWeapon
 		return PickupMsg;
 	}
 
+	private action void VacuumItems()
+	{
+		for (int i = 0; i < invoker.VacuumedClasses.Size(); ++i)
+		{
+			class<HDPickup> a = invoker.VacuumedClasses[i];
+			if (!a || CountInv(a) >= 1000)
+			{
+				continue;
+			}
+
+			if (CheckProximity(a, MaxRange / 2, 1, CPXF_SETTRACER | CPXF_CLOSEST | CPXF_CHECKSIGHT))
+			{
+				let Item = HDPickup(tracer);
+				if (!Item || Item.pos ~== (0, 0, 0))
+				{
+					continue;
+				}
+
+				Item.ActualPickup(self);
+				break;
+			}
+		}
+	}
+
+	static const string VacuumedClasses[] =
+	{
+		"SevenMilBrass",
+		"HDRel_RawBrass",
+		"HDRel_RawPlastic",
+		"HDRel_RawLead",
+		"HDRel_RawPowder"
+	};
+
 	const MinFrag = 5;
 	const MaxFrag = 20;
 	const MaxRange = 512;
 	bool Active;
+	bool Vacuum;
 	int ShootTicker;
 	CubeDestination Destination;
 
@@ -183,6 +248,11 @@ class HDSoulCube : HDWeapon
 			{
 				if (invoker.Active)
 				{
+					if (invoker.Vacuum)
+					{
+						VacuumItems();
+					}
+
 					invoker.Angle += 10;
 
 					bool Overcharged = invoker.WeaponStatus[SCProp_Frag] > MaxFrag;
@@ -279,7 +349,31 @@ class HDSoulCube : HDWeapon
 							let plr = HDPlayerPawn(PlayerIterator.thing);
 							if (plr && CheckSight(plr))
 							{
-								plr.regenblues += 4 * Size;
+								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
+								if (Battery)
+								{
+									int MinCharge = 0, LastIndex = -1; 
+									for (int i = 0; i < Battery.Mags.Size(); ++i)
+									{
+										if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
+										{
+											MinCharge = Battery.Mags[i];
+											LastIndex = i;
+										}
+									}
+									if (LastIndex > -1)
+									{
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + int(1.34 * Size), Battery.MaxPerUnit);
+									}
+									else
+									{
+										plr.regenblues += 4 * Size;
+									}
+								}
+								else
+								{
+									plr.regenblues += 4 * Size;
+								}
 							}
 						}
 					}
@@ -308,6 +402,10 @@ class HDSoulCube : HDWeapon
 					invoker.WeaponStatus[SCProp_UseOffset] = off * 2 / 3;
 				}
 
+				if (JustPressed(BT_ZOOM))
+				{
+					invoker.Vacuum = !invoker.Vacuum;
+				}
 				else if (PressingFire())
 				{
 					SetWeaponState("Lower");
