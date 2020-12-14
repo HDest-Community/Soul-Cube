@@ -157,7 +157,7 @@ class HDSoulCube : HDWeapon
 			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
 			while (Iterator.Next())
 			{
-				if (Iterator.thing is "BFGNecroShard")
+				if (Iterator.thing is 'BFGNecroShard')
 				{
 					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag]++;
@@ -310,7 +310,7 @@ class HDSoulCube : HDWeapon
 					while (EnemyIterator.Next())
 					{
 						Actor ZapTarget = EnemyIterator.thing;
-						if (ZapTarget.bISMONSTER && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+						if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 						{
 							for (int i = 0; i < 2; ++i)
 							{
