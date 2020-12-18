@@ -462,7 +462,7 @@ class HDSoulCube : HDWeapon
 						if (a && Distance3D(a) < 512)
 						{
 							invoker.Destination.master = a;
-							invoker.OwningPlayer = self;
+							invoker.OwningPlayer = HDPlayerPawn(self);
 						}
 						else
 						{
