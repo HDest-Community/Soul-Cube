@@ -406,7 +406,7 @@ class HDSoulCube : HDWeapon
 				{
 					invoker.Vacuum = !invoker.Vacuum;
 				}
-				else if (PressingFire())
+				else if (PressingFire() || PressingAltfire())
 				{
 					SetWeaponState("Lower");
 					return;
@@ -419,7 +419,7 @@ class HDSoulCube : HDWeapon
 			TNT1 AA 1 A_AddOffset(6);
 			TNT1 AAAA 1 A_AddOffset(14);
 			TNT1 AAAA 1 A_AddOffset(30);
-			TNT1 A 0 A_JumpIf(!PressingFire(), "Ready");
+			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltfire(), "Ready");
 			TNT1 A 1
 			{
 				if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
