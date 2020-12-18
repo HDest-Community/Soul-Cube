@@ -272,13 +272,13 @@ class HDSoulCube : HDWeapon
 					double OldAngle = invoker.Angle;
 					if (invoker.Destination)
 					{
-						if (invoker.Distance2D(invoker.Destination) > 48 || abs(invoker.pos.z - invoker.Destination.pos.z) > 24)
+						if (invoker.Distance2D(invoker.Destination) > 40 || abs(invoker.pos.z - invoker.Destination.pos.z) > 20)
 						{
 							vector3 diff = level.Vec3Diff(invoker.pos, invoker.Destination.pos);
 							double PitchToDest = atan2(diff.z, diff.xy.length());
 
 							A_Face(invoker.Destination, 180, 45);
-							A_ChangeVelocity(0.5 * cos(PitchToDest), 0, 0.5 * sin(PitchToDest), CVF_RELATIVE);
+							A_ChangeVelocity(0.75 * cos(PitchToDest), 0, 0.75 * sin(PitchToDest), CVF_RELATIVE);
 							vel.x = clamp(vel.x, -6, 6);
 							vel.y = clamp(vel.y, -6, 6);
 							vel.z = clamp(vel.z, -6, 6);
@@ -287,6 +287,10 @@ class HDSoulCube : HDWeapon
 						{
 							A_ScaleVelocity(0.90);
 						}
+					}
+					else
+					{
+						A_ScaleVelocity(0.90);
 					}
 
 					// [Ace] Draw range circle.
@@ -466,6 +470,7 @@ class HDSoulCube : HDWeapon
 						}
 						else
 						{
+							SetWeaponState("Nope");
 							return;
 						}
 					}
@@ -500,7 +505,7 @@ class CubeDestination : Actor
 				{
 					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
 				}
-				else
+				else if (master.Health <= 0)
 				{
 					Destroy();
 				}
