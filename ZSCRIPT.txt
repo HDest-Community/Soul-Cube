@@ -224,6 +224,7 @@ class HDSoulCube : HDWeapon
 	bool Vacuum;
 	int ShootTicker;
 	CubeDestination Destination;
+	HDPlayerPawn OwningPlayer;
 
 	Default
 	{
@@ -333,7 +334,7 @@ class HDSoulCube : HDWeapon
 						{
 							if (TargetList[i])
 							{
-								TargetList[i].DamageMobj(master, master, Overcharged ? 300 : 150, 'Holy');
+								TargetList[i].DamageMobj(invoker.OwningPlayer, invoker.OwningPlayer, Overcharged ? 300 : 150, 'Holy');
 								for (int j = 0; j < 80; ++j)
 								{
 									TargetList[i].A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
@@ -427,7 +428,7 @@ class HDSoulCube : HDWeapon
 					return;
 				}
 
-				if (PressingFire())
+				if (PressingFire() || PressingAltfire())
 				{
 					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] >= MaxFrag)
 					{
@@ -455,7 +456,23 @@ class HDSoulCube : HDWeapon
 					}
 
 					invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
-					invoker.Destination.master = self;
+					if (PressingAltfire())
+					{
+						Actor a = AimTarget();
+						if (a && Distance3D(a) < 512)
+						{
+							invoker.Destination.master = a;
+							invoker.OwningPlayer = self;
+						}
+						else
+						{
+							return;
+						}
+					}
+					else
+					{
+						invoker.Destination.master = self;
+					}
 
 					DropInventory(invoker);
 					invoker.A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
