@@ -505,7 +505,7 @@ class CubeDestination : Actor
 				{
 					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
 				}
-				else if (master.Health <= 0)
+				else
 				{
 					Destroy();
 				}
