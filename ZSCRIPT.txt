@@ -373,7 +373,7 @@ class HDSoulCube : HDWeapon
 					// [Ace] Draw range circle.
 					for (double i = 0; i < 360; i += 0.75)
 					{
-						A_SpawnParticle(PartCol, SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.4);
+						A_SpawnParticle(PartCol, SPF_RELPOS | SPF_FULLBRIGHT, 1, 40, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.25);
 					}
 
 					// [Ace] Drop down when out of charges.
