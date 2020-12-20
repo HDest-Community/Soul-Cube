@@ -49,42 +49,75 @@ class HDSoulCube : HDWeapon
 		vector2 bob = hpl.hudbob * 0.3;
 		int Offset = WeaponStatus[SCProp_UseOffset];
 		bob.y += Offset;
-		int BaseYOffset = -220;
+		int BaseYOffset = -150;
 		
-		sb.DrawImage("SLCBA3A7", (0, BaseYOffset + 68) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
+		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
+		BaseYOffset += 50;
 		if (WeaponStatus[SCProp_Frag] >= MinFrag)
 		{
-			sb.DrawString(sb.pSmallFont, "Use us.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+			sb.DrawString(sb.pSmallFont, "Use us.", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 		}
 		else
 		{
-			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
+			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
 		}
+		BaseYOffset += 10;
+
+		// [Ace] Aggro.
+		string AggroString = "\c[SC_AggroNone]Your soul is unharmed.";
+		if (hpl.aggravateddamage > 0)
+		{
+			if (hpl.aggravateddamage <= 20)
+			{
+				AggroString = "\c[SC_AggroVLow]Your soul is strong.";
+			}
+			else if (hpl.aggravateddamage <= 40)
+			{
+				AggroString = "\c[SC_AggroLow]Your soul needs healing.";
+			}
+			else if (hpl.aggravateddamage <= 60)
+			{
+				AggroString = "\c[SC_AggroMed]Your soul has been burnt.";
+			}
+			else if (hpl.aggravateddamage <= 80)
+			{
+				AggroString = "\c[SC_AggroHigh]Your soul is nearly torn apart.";
+			}
+			else
+			{
+				AggroString = "\c[SC_AggroUlt]Your soul has been utterly scorched.";
+			}
+		}
+		sb.DrawString(sb.pSmallFont, AggroString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
 
 		// [Ace] Blues.
 		string BluesString = "\c[White]We detect nothing superatural in you.\c-";
-		if (hpl.regenblues < 72)
+		if (hpl.regenblues > 0)
 		{
-			BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you.\c-";
+			if (hpl.regenblues <= 72)
+			{
+				BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you.\c-";
+			}
+			else if (hpl.regenblues <= 144)
+			{
+				BluesString = "\c[SC_BluesLow]There is something supernatural in you.\c-";
+			}
+			else if (hpl.regenblues <= 777)
+			{
+				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura.\c-";
+			}
+			else if (hpl.regenblues <= 1554)
+			{
+				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural.\c-";
+			}
+			else
+			{
+				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath.\c-";
+			}
 		}
-		else if (hpl.regenblues < 144)
-		{
-			BluesString = "\c[SC_BluesLow]There is something supernatural in you.\c-";
-		}
-		else if (hpl.regenblues < 777)
-		{
-			BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura.\c-";
-		}
-		else if (hpl.regenblues < 1554)
-		{
-			BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural.\c-";
-		}
-		else
-		{
-			BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath.\c-";
-		}
-
-		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset + 130) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
 
 		// [Ace] Spiritual armor.
 		string ProtectionString = "\c[Red]You are not protected.\c-";
@@ -94,10 +127,11 @@ class HDSoulCube : HDWeapon
 			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul.\c-"; break;
 			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm.\c-"; break;
 		}
-		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset + 140) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
 
 		// [Ace] Roomba stuff.
-		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset + 150) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 	}
 
 	override int GetSbarNum(int flags)
