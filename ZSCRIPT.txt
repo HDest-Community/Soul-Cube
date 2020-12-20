@@ -293,7 +293,6 @@ class HDSoulCube : HDWeapon
 	bool Vacuum;
 	int ShootTicker;
 	CubeDestination Destination;
-	HDPlayerPawn OwningPlayer;
 
 	Default
 	{
@@ -323,17 +322,7 @@ class HDSoulCube : HDWeapon
 					}
 
 					invoker.Angle += 10;
-
-					// [Ace] Put out fire. I have no idea if this actually does anything.
-					let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
-					while (PlayerIterator.Next())
-					{
-						let plr = HDPlayerPawn(PlayerIterator.thing);
-						if (plr && CheckSight(plr))
-						{
-							plr.A_GiveInventory("HDFireDouse", 5);
-						}
-					}
+					invoker.ShootTicker++;
 
 					// [Ace] Move towards owner.
 					double OldAngle = invoker.Angle;
@@ -388,26 +377,38 @@ class HDSoulCube : HDWeapon
 					}
 
 					Array<Actor> TargetList;
-					let EnemyIterator = BlockThingsIterator.Create(invoker, MaxRange);
-					while (EnemyIterator.Next())
+					Array<HDPlayerPawn> PlayerList;
+					int Size = 0;
+					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
+					while (Iterator.Next())
 					{
-						Actor ZapTarget = EnemyIterator.thing;
-						if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+						if (Size < 3)
 						{
-							for (int i = 0; i < 2; ++i)
+							Actor ZapTarget = Iterator.thing;
+							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 							{
-								ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
-							}
-							TargetList.Push(ZapTarget);
-							if (TargetList.Size() == 3)
-							{
-								break;
+								for (int i = 0; i < 2; ++i)
+								{
+									ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
+								}
+								if (invoker.ShootTicker % (35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel]) == 0)
+								{
+									TargetList.Push(ZapTarget);
+									Size = TargetList.Size();
+									continue;
+								}
 							}
 						}
+
+						if (Iterator.thing is 'HDPlayerPawn')
+						{
+							PlayerList.Push(HDPlayerPawn(Iterator.thing));
+						}
 					}
-					
-					int Size = TargetList.Size();
-					if (Size > 0 && invoker.ShootTicker++ >= 35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel])
+
+					A_RadiusGive("HDFireDouse", MaxRange, RGF_PLAYERS | RGF_NOSIGHT, 20);
+
+					if (Size > 0)
 					{
 						invoker.ShootTicker = 0;
 						invoker.WeaponStatus[SCProp_Frag]--;
@@ -415,7 +416,7 @@ class HDSoulCube : HDWeapon
 						{
 							if (TargetList[i])
 							{
-								TargetList[i].DamageMobj(invoker.OwningPlayer, invoker.OwningPlayer, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
+								TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
 								for (int j = 0; j < 80; ++j)
 								{
 									TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
@@ -423,46 +424,43 @@ class HDSoulCube : HDWeapon
 							}
 						}
 
-						// [Ace] Give nearby players some blues.
-						let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
-						while (PlayerIterator.Next())
+						for (int i = 0; i < PlayerList.Size(); ++i)
 						{
-							let plr = HDPlayerPawn(PlayerIterator.thing);
-							if (plr && CheckSight(plr))
+							if (!CheckSight(PlayerList[i]))
 							{
-								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
-								if (Battery)
-								{
-									// [Ace] Find the highest battery that's not full.
-									int MinCharge = 0, LastIndex = -1; 
-									for (int i = 0; i < Battery.Mags.Size(); ++i)
-									{
-										if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
-										{
-											MinCharge = Battery.Mags[i];
-											LastIndex = i;
-										}
-									}
+								continue;
+							}
 
-									if (LastIndex > -1)
+							let plr = PlayerList[i];
+
+							let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
+							if (Battery)
+							{
+								// [Ace] Find the highest battery that's not full.
+								int MinCharge = 0, LastIndex = -1; 
+								for (int i = 0; i < Battery.Mags.Size(); ++i)
+								{
+									if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
 									{
-										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
+										MinCharge = Battery.Mags[i];
+										LastIndex = i;
 									}
-									else
-									{
-										plr.regenblues += 4 * Size;
-									}
+								}
+
+								if (LastIndex > -1)
+								{
+									Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
 								}
 								else
 								{
 									plr.regenblues += 4 * Size;
 								}
 							}
+							else
+							{
+								plr.regenblues += 4 * Size;
+							}
 						}
-					}
-					else if (Size == 0)
-					{
-						invoker.ShootTicker = 0;
 					}
 				}
 			}
@@ -542,10 +540,10 @@ class HDSoulCube : HDWeapon
 					if (PressingAltfire())
 					{
 						Actor a = AimTarget();
-						if (a && Distance3D(a) < 512)
+						if (a && Distance3D(a) < MaxRange)
 						{
 							invoker.Destination.master = a;
-							invoker.OwningPlayer = HDPlayerPawn(self);
+							invoker.master = self;
 						}
 						else
 						{
