@@ -12,7 +12,7 @@ class SoulCubeHandler : StaticEventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'Lumberjack':
-				if (random[cuberand]() <= 32)
+				if (random[cuberand]() <= 64)
 				{
 					e.Replacement = "HDSoulCube";
 				}
@@ -26,7 +26,8 @@ class HDSoulCube : HDWeapon
 	enum SCProperty
 	{
 		SCProp_UseOffset,
-		SCProp_Frag
+		SCProp_Frag,
+		SCProp_CubeLevel
 	}
 
 	action void A_AddOffset(int ofs)
@@ -94,7 +95,14 @@ class HDSoulCube : HDWeapon
 			if (self != Cube)
 			{
 				A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
-				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 10;
+				if (Cube.WeaponStatus[SCProp_CubeLevel] < MaxLevel)
+				{
+					Cube.WeaponStatus[SCProp_CubeLevel] = min(Cube.WeaponStatus[SCProp_CubeLevel] + WeaponStatus[SCProp_CubeLevel] + 1, MaxLevel);
+				}
+				else
+				{
+					Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 10;
+				}
 				Destroy();
 			}
 		}
@@ -103,7 +111,7 @@ class HDSoulCube : HDWeapon
 
 	// override void InitializeWepStats(bool idfa)
 	// {
-	// 	WeaponStatus[SCProp_Frag] = MaxFrag;
+	// 	WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
 	// }
 
 	override void ActualPickup(actor other, bool silent)
@@ -152,7 +160,7 @@ class HDSoulCube : HDWeapon
 
 	override void DoEffect()
 	{
-		if (WeaponStatus[SCProp_Frag] < MaxFrag && level.time % (35 * 3) == 0 && !random(0, 1))
+		if (WeaponStatus[SCProp_Frag] < GetMaxFrag() && level.time % (35 * 3) == 0 && !random(0, 1))
 		{
 			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
 			while (Iterator.Next())
@@ -208,6 +216,11 @@ class HDSoulCube : HDWeapon
 		}
 	}
 
+	private clearscope int GetMaxFrag()
+	{
+		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
+	}
+
 	static const string VacuumedClasses[] =
 	{
 		"SevenMilBrass",
@@ -218,8 +231,8 @@ class HDSoulCube : HDWeapon
 	};
 
 	const MinFrag = 5;
-	const MaxFrag = 20;
 	const MaxRange = 512;
+	const MaxLevel = 4;
 	bool Active;
 	bool Vacuum;
 	int ShootTicker;
@@ -254,8 +267,6 @@ class HDSoulCube : HDWeapon
 					}
 
 					invoker.Angle += 10;
-
-					bool Overcharged = invoker.WeaponStatus[SCProp_Frag] > MaxFrag;
 
 					// [Ace] Put out fire. I have no idea if this actually does anything.
 					let PlayerIterator = BlockThingsIterator.Create(invoker, MaxRange);
@@ -293,10 +304,20 @@ class HDSoulCube : HDWeapon
 						A_ScaleVelocity(0.90);
 					}
 
+					Color PartCol;
+					switch (invoker.WeaponStatus[SCProp_CubeLevel])
+					{
+						case 0: PartCol = 0x44FF44; break;
+						case 1: PartCol = 0x99FF11; break;
+						case 2: PartCol = 0xFFFF11; break;
+						case 3: PartCol = 0xFF9911; break;
+						case 4: PartCol = 0xFF1111; break;
+					}
+
 					// [Ace] Draw range circle.
 					for (double i = 0; i < 360; i += 0.75)
 					{
-						A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz));
+						A_SpawnParticle(PartCol, SPF_FULLBRIGHT | SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.25);
 					}
 
 					// [Ace] Drop down when out of charges.
@@ -319,7 +340,7 @@ class HDSoulCube : HDWeapon
 						{
 							for (int i = 0; i < 2; ++i)
 							{
-								ZapTarget.A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
+								ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
 							}
 							TargetList.Push(ZapTarget);
 							if (TargetList.Size() == 3)
@@ -330,7 +351,7 @@ class HDSoulCube : HDWeapon
 					}
 					
 					int Size = TargetList.Size();
-					if (Size > 0 && invoker.ShootTicker++ >= (Overcharged ? 17 : 35))
+					if (Size > 0 && invoker.ShootTicker++ >= 35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel])
 					{
 						invoker.ShootTicker = 0;
 						invoker.WeaponStatus[SCProp_Frag]--;
@@ -338,10 +359,10 @@ class HDSoulCube : HDWeapon
 						{
 							if (TargetList[i])
 							{
-								TargetList[i].DamageMobj(invoker.OwningPlayer, invoker.OwningPlayer, Overcharged ? 300 : 150, 'Holy');
+								TargetList[i].DamageMobj(invoker.OwningPlayer, invoker.OwningPlayer, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
 								for (int j = 0; j < 80; ++j)
 								{
-									TargetList[i].A_SpawnParticle(Overcharged ? 0xFF1111 : 0x44FF44, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
+									TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
 								}
 							}
 						}
@@ -356,6 +377,7 @@ class HDSoulCube : HDWeapon
 								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
 								if (Battery)
 								{
+									// [Ace] Find the highest battery that's not full.
 									int MinCharge = 0, LastIndex = -1; 
 									for (int i = 0; i < Battery.Mags.Size(); ++i)
 									{
@@ -365,6 +387,7 @@ class HDSoulCube : HDWeapon
 											LastIndex = i;
 										}
 									}
+
 									if (LastIndex > -1)
 									{
 										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
@@ -434,7 +457,7 @@ class HDSoulCube : HDWeapon
 
 				if (PressingFire() || PressingAltfire())
 				{
-					if (PressingFiremode() && invoker.WeaponStatus[SCProp_Frag] >= MaxFrag)
+					if (PressingFiremode() && CountInv("SpiritualArmour") < min(3, invoker.WeaponStatus[SCProp_CubeLevel]) && invoker.WeaponStatus[SCProp_Frag] >= 20)
 					{
 						let PlayerIterator = BlockThingsIterator.Create(self, MaxRange);
 						while (PlayerIterator.Next())
@@ -450,7 +473,7 @@ class HDSoulCube : HDWeapon
 									}
 								}
 								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
-								invoker.WeaponStatus[SCProp_Frag] -= MaxFrag;
+								invoker.WeaponStatus[SCProp_Frag] -= 20;
 							}
 						}
 					
