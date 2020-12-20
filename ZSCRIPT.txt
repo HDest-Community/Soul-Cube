@@ -92,7 +92,7 @@ class HDSoulCube : HDWeapon
 		BaseYOffset += 10;
 
 		// [Ace] Blues.
-		string BluesString = "\c[White]We detect nothing superatural in you\c-";
+		string BluesString = "\c[White]We detect nothing supernatural in you\c-";
 		if (hpl.regenblues > 0)
 		{
 			if (hpl.regenblues <= 72)
