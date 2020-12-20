@@ -49,7 +49,7 @@ class HDSoulCube : HDWeapon
 		vector2 bob = hpl.hudbob * 0.3;
 		int Offset = WeaponStatus[SCProp_UseOffset];
 		bob.y += Offset;
-		int BaseYOffset = -150;
+		int BaseYOffset = -180;
 		
 		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
 		BaseYOffset += 50;
