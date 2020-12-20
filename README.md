@@ -15,3 +15,4 @@
 - 20 frag can be expended at L1+ to grant the player spiritual armour. At L1, you can only grant 1 layer. Up to 3 layers at L3.
 - Helps put out fire faster if out.
 - Can collect brass and [universal reloader](https://gitlab.com/accensi/hd-addons/universal-reloader) materials.
+- To pick up the cube while it's active, double-tap Use on it.

@@ -170,6 +170,17 @@ class HDSoulCube : HDWeapon
 	// 	WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
 	// }
 
+	override bool OnGrab(Actor other)
+	{
+		if (Active && PickupTimer <= 0)
+		{
+			PickupTimer = 10;
+			return false;
+		}
+
+		return Super.OnGrab(other);
+	}
+
 	override void ActualPickup(actor other, bool silent)
 	{
 		if (!other)
@@ -209,7 +220,6 @@ class HDSoulCube : HDWeapon
 
 		Active = false;
 		bNOGRAVITY = false;
-		ShootTicker = 0;
 
 		Super.ActualPickup(other, silent);
 	}
@@ -291,7 +301,7 @@ class HDSoulCube : HDWeapon
 	const MaxLevel = 4;
 	bool Active;
 	bool Vacuum;
-	int ShootTicker;
+	int PickupTimer;
 	CubeDestination Destination;
 
 	Default
@@ -314,6 +324,7 @@ class HDSoulCube : HDWeapon
 		Spawn:
 			SLCB A 1
 			{
+				invoker.PickupTimer--;
 				if (invoker.Active)
 				{
 					if (invoker.Vacuum)
@@ -322,7 +333,6 @@ class HDSoulCube : HDWeapon
 					}
 
 					invoker.Angle += 10;
-					invoker.ShootTicker++;
 
 					// [Ace] Move towards owner.
 					double OldAngle = invoker.Angle;
@@ -391,7 +401,7 @@ class HDSoulCube : HDWeapon
 								{
 									ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
 								}
-								if (invoker.ShootTicker % (35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel]) == 0)
+								if (invoker.GetAge() % (35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel]) == 0)
 								{
 									TargetList.Push(ZapTarget);
 									Size = TargetList.Size();
@@ -410,7 +420,6 @@ class HDSoulCube : HDWeapon
 
 					if (Size > 0)
 					{
-						invoker.ShootTicker = 0;
 						invoker.WeaponStatus[SCProp_Frag]--;
 						for (int i = 0; i < Size; ++i)
 						{

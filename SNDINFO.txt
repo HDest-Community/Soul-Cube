@@ -1,3 +1,5 @@
 SoulCube/Ready SOULRDY
 SoulCube/Use SOULHEAL
+$limit SoulCube/Use 3
 SoulCube/Ammo SOULAMMO
+
