@@ -160,7 +160,7 @@ class HDSoulCube : HDWeapon
 
 	override void DoEffect()
 	{
-		if (WeaponStatus[SCProp_Frag] < GetMaxFrag() && level.time % (35 * 3) == 0 && !random(0, 1))
+		if (WeaponStatus[SCProp_Frag] < GetMaxFrag() && level.time % (105 - 15 * WeaponStatus[SCProp_CubeLevel]) == 0 && !random(0, 1))
 		{
 			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
 			while (Iterator.Next())
