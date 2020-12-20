@@ -1,0 +1,5 @@
+SC_BluesVLow { #000000 #c7e8ff }
+SC_BluesLow { #000000 #85ccff }
+SC_BluesMed { #000000 #42b0ff }
+SC_BluesHigh { #000000 #055dff }
+SC_BluesUlt { #000000 #0810e7 }

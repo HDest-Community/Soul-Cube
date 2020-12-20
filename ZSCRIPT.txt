@@ -61,21 +61,43 @@ class HDSoulCube : HDWeapon
 			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset + 120) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
 		}
 
-		// [Ace] Spiritual armor.
-		int SpiritArmorCount = sb.GetAmount("SpiritualArmour");
-		string ProtectionString = "\c[Red]You are not protected.\c-";
+		// [Ace] Blues.
+		string BluesString = "\c[White]We detect nothing superatural in you.\c-";
+		if (hpl.regenblues < 72)
+		{
+			BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you.\c-";
+		}
+		else if (hpl.regenblues < 144)
+		{
+			BluesString = "\c[SC_BluesLow]There is something supernatural in you.\c-";
+		}
+		else if (hpl.regenblues < 777)
+		{
+			BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura.\c-";
+		}
+		else if (hpl.regenblues < 1554)
+		{
+			BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural.\c-";
+		}
+		else
+		{
+			BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath.\c-";
+		}
 
-		switch (SpiritArmorCount)
+		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset + 130) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+
+		// [Ace] Spiritual armor.
+		string ProtectionString = "\c[Red]You are not protected.\c-";
+		switch (sb.GetAmount("SpiritualArmour"))
 		{
 			case 1: ProtectionString = "\c[Orange]You are barely protected.\c-"; break;
 			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul.\c-"; break;
 			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm.\c-"; break;
 		}
-
-		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset + 130) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset + 140) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 
 		// [Ace] Roomba stuff.
-		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset + 140) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset + 150) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 	}
 
 	override int GetSbarNum(int flags)
@@ -317,7 +339,7 @@ class HDSoulCube : HDWeapon
 					// [Ace] Draw range circle.
 					for (double i = 0; i < 360; i += 0.75)
 					{
-						A_SpawnParticle(PartCol, SPF_FULLBRIGHT | SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.25);
+						A_SpawnParticle(PartCol, SPF_RELPOS, 1, 32, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.4);
 					}
 
 					// [Ace] Drop down when out of charges.
