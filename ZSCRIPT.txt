@@ -55,83 +55,83 @@ class HDSoulCube : HDWeapon
 		BaseYOffset += 50;
 		if (WeaponStatus[SCProp_Frag] >= MinFrag)
 		{
-			sb.DrawString(sb.pSmallFont, "Use us.", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+			sb.DrawString(sb.pSmallFont, "Use us", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
 		}
 		else
 		{
-			sb.DrawString(sb.pSmallFont, "Not enough frag.", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
+			sb.DrawString(sb.pSmallFont, "Not enough frag", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
 		}
 		BaseYOffset += 10;
 
 		// [Ace] Aggro.
-		string AggroString = "\c[SC_AggroNone]Your soul is unharmed.";
+		string AggroString = "\c[SC_AggroNone]Your soul is unharmed\c-";
 		if (hpl.aggravateddamage > 0)
 		{
 			if (hpl.aggravateddamage <= 20)
 			{
-				AggroString = "\c[SC_AggroVLow]Your soul is strong.";
+				AggroString = "\c[SC_AggroVLow]Your soul is strong\c-";
 			}
 			else if (hpl.aggravateddamage <= 40)
 			{
-				AggroString = "\c[SC_AggroLow]Your soul needs healing.";
+				AggroString = "\c[SC_AggroLow]Your soul needs healing\c-";
 			}
 			else if (hpl.aggravateddamage <= 60)
 			{
-				AggroString = "\c[SC_AggroMed]Your soul has been burnt.";
+				AggroString = "\c[SC_AggroMed]Your soul has been burnt\c-";
 			}
 			else if (hpl.aggravateddamage <= 80)
 			{
-				AggroString = "\c[SC_AggroHigh]Your soul is nearly torn apart.";
+				AggroString = "\c[SC_AggroHigh]Your soul is nearly torn apart\c-";
 			}
 			else
 			{
-				AggroString = "\c[SC_AggroUlt]Your soul has been utterly scorched.";
+				AggroString = "\c[SC_AggroUlt]Your soul has been utterly scorched\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, AggroString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 		BaseYOffset += 10;
 
 		// [Ace] Blues.
-		string BluesString = "\c[White]We detect nothing superatural in you.\c-";
+		string BluesString = "\c[White]We detect nothing superatural in you\c-";
 		if (hpl.regenblues > 0)
 		{
 			if (hpl.regenblues <= 72)
 			{
-				BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you.\c-";
+				BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you\c-";
 			}
 			else if (hpl.regenblues <= 144)
 			{
-				BluesString = "\c[SC_BluesLow]There is something supernatural in you.\c-";
+				BluesString = "\c[SC_BluesLow]There is something supernatural in you\c-";
 			}
 			else if (hpl.regenblues <= 777)
 			{
-				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura.\c-";
+				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura\c-";
 			}
 			else if (hpl.regenblues <= 1554)
 			{
-				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural.\c-";
+				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
 			else
 			{
-				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath.\c-";
+				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 		BaseYOffset += 10;
 
 		// [Ace] Spiritual armor.
-		string ProtectionString = "\c[Red]You are not protected.\c-";
+		string ProtectionString = "\c[Red]You are not protected\c-";
 		switch (sb.GetAmount("SpiritualArmour"))
 		{
-			case 1: ProtectionString = "\c[Orange]You are barely protected.\c-"; break;
-			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul.\c-"; break;
-			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm.\c-"; break;
+			case 1: ProtectionString = "\c[Orange]You are barely protected\c-"; break;
+			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul\c-"; break;
+			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm\c-"; break;
 		}
 		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 		BaseYOffset += 10;
 
 		// [Ace] Roomba stuff.
-		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you.\c-" : "\c[Red]We shall not collect anything.\c-", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you\c-" : "\c[Red]We shall not collect anything\c-", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 	}
 
 	override int GetSbarNum(int flags)
