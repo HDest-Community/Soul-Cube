@@ -13,4 +13,5 @@
 - It can attack up to 3 enemies at once, dealing a flat amount of damage and ignoring shields/armor. Each attack costs 1 frag.
 - Each attack recharges all nearby players' highest non-full battery OR gives all of them a little bit of blues.
 - 20 frag can be expended at L1+ to grant the player spiritual armour. At L1, you can only grant 1 layer. Up to 3 layers at L3.
+- Helps put out fire faster if out.
 - Can collect brass and [universal reloader](https://gitlab.com/accensi/hd-addons/universal-reloader) materials.
