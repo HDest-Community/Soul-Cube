@@ -302,6 +302,7 @@ class HDSoulCube : HDWeapon
 	bool Active;
 	bool Vacuum;
 	int PickupTimer;
+	int ShootTicker;
 	CubeDestination Destination;
 
 	Default
@@ -401,12 +402,10 @@ class HDSoulCube : HDWeapon
 								{
 									ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
 								}
-								if (invoker.GetAge() % (35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel]) == 0)
-								{
-									TargetList.Push(ZapTarget);
-									Size = TargetList.Size();
-									continue;
-								}
+
+								TargetList.Push(ZapTarget);
+								Size = TargetList.Size();
+								continue;
 							}
 						}
 
@@ -420,56 +419,64 @@ class HDSoulCube : HDWeapon
 
 					if (Size > 0)
 					{
-						invoker.WeaponStatus[SCProp_Frag]--;
-						for (int i = 0; i < Size; ++i)
+						if (++invoker.ShootTicker >= 35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel])
 						{
-							if (TargetList[i])
+							invoker.ShootTicker = 0;
+							invoker.WeaponStatus[SCProp_Frag]--;
+							for (int i = 0; i < Size; ++i)
 							{
-								TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
-								for (int j = 0; j < 80; ++j)
+								if (TargetList[i])
 								{
-									TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
-								}
-							}
-						}
-
-						for (int i = 0; i < PlayerList.Size(); ++i)
-						{
-							if (!CheckSight(PlayerList[i]))
-							{
-								continue;
-							}
-
-							let plr = PlayerList[i];
-
-							let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
-							if (Battery)
-							{
-								// [Ace] Find the highest battery that's not full.
-								int MinCharge = 0, LastIndex = -1; 
-								for (int i = 0; i < Battery.Mags.Size(); ++i)
-								{
-									if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
+									TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
+									for (int j = 0; j < 80; ++j)
 									{
-										MinCharge = Battery.Mags[i];
-										LastIndex = i;
+										TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
 									}
 								}
+							}
 
-								if (LastIndex > -1)
+							for (int i = 0; i < PlayerList.Size(); ++i)
+							{
+								if (!CheckSight(PlayerList[i]))
 								{
-									Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
+									continue;
+								}
+
+								let plr = PlayerList[i];
+
+								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
+								if (Battery)
+								{
+									// [Ace] Find the highest battery that's not full.
+									int MinCharge = 0, LastIndex = -1; 
+									for (int i = 0; i < Battery.Mags.Size(); ++i)
+									{
+										if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
+										{
+											MinCharge = Battery.Mags[i];
+											LastIndex = i;
+										}
+									}
+
+									if (LastIndex > -1)
+									{
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
+									}
+									else
+									{
+										plr.regenblues += 4 * Size;
+									}
 								}
 								else
 								{
 									plr.regenblues += 4 * Size;
 								}
 							}
-							else
-							{
-								plr.regenblues += 4 * Size;
-							}
 						}
+					}
+					else
+					{
+						invoker.ShootTicker = 0;
 					}
 				}
 			}
