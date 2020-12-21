@@ -166,10 +166,10 @@ class HDSoulCube : HDWeapon
 		return false;
 	}
 
-	override void InitializeWepStats(bool idfa)
-	{
-		WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
-	}
+	// override void InitializeWepStats(bool idfa)
+	// {
+	// 	WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
+	// }
 
 	override bool OnGrab(Actor other)
 	{
