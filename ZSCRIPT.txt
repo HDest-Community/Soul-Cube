@@ -235,7 +235,7 @@ class HDSoulCube : HDWeapon
 	{
 		if (!random(0, 32))
 		{
-			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuob\".";
+			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuoob\".";
 		}
 		return PickupMsg;
 	}
