@@ -38,9 +38,12 @@ class HDSoulCube : HDWeapon
 	override string, double GetPickupSprite() { return "SLCBA3A7", 0.5; }
 	override string GetHelpText()
 	{
-		return WEPHELP_FIRE.."  Attack\n"
-		..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor\n"
-		..WEPHELP_ZOOM.."  Toggle vaccuum mode";
+		string BaseString = WEPHELP_FIRE.."  Attack";
+		if (WeaponStatus[SCProp_CubeLevel] > 0)
+		{
+			BaseString = BaseString.."\n"..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor";
+		}
+		return BaseString;
 	}
 	override double WeaponBulk() { return 80 * Amount; }
 
@@ -49,7 +52,7 @@ class HDSoulCube : HDWeapon
 		vector2 bob = hpl.hudbob * 0.3;
 		int Offset = WeaponStatus[SCProp_UseOffset];
 		bob.y += Offset;
-		int BaseYOffset = -180;
+		int BaseYOffset = -170;
 		
 		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
 		BaseYOffset += 50;
@@ -129,9 +132,6 @@ class HDSoulCube : HDWeapon
 		}
 		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 		BaseYOffset += 10;
-
-		// [Ace] Roomba stuff.
-		sb.DrawString(sb.pSmallFont, Vacuum ? "\c[Green]We shall collect items for you\c-" : "\c[Red]We shall not collect anything\c-", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
 	}
 
 	override int GetSbarNum(int flags)
@@ -145,6 +145,7 @@ class HDSoulCube : HDWeapon
 
 	override bool AddSpareWeapon(actor newowner)
 	{
+		// [Ace] This pointer is for the existing cube in the player's inventory.
 		let Cube = HDSoulCube(newowner.FindInventory("HDSoulCube"));
 		if (Cube)
 		{
@@ -165,10 +166,10 @@ class HDSoulCube : HDWeapon
 		return false;
 	}
 
-	// override void InitializeWepStats(bool idfa)
-	// {
-	// 	WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
-	// }
+	override void InitializeWepStats(bool idfa)
+	{
+		WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
+	}
 
 	override bool OnGrab(Actor other)
 	{
@@ -191,31 +192,6 @@ class HDSoulCube : HDWeapon
 		if (Destination)
 		{
 			Destination.Destroy();
-		}
-
-		for (int i = 0; i < VacuumedClasses.Size(); ++i)
-		{
-			Class<Inventory> cls = VacuumedClasses[i];
-			if (!cls)
-			{
-				continue;
-			}
-			
-			int InvAmount = CountInv(cls);
-			if (InvAmount > 0)
-			{
-				int MaxGiveAmount = 1000 - other.CountInv(cls);
-				int GiveAmount = min(InvAmount, MaxGiveAmount);
-				
-				other.A_GiveInventory(cls, GiveAmount);
-				A_TakeInventory(cls, GiveAmount);
-
-				if (InvAmount > GiveAmount)
-				{
-					// [Ace] Drop excess if player can't pick up more.
-					A_DropInventory(cls, InvAmount - GiveAmount);
-				}
-			}
 		}
 
 		Active = false;
@@ -246,6 +222,12 @@ class HDSoulCube : HDWeapon
 			}
 		}
 
+		let plr = HDPlayerPawn(owner);
+		if (!Active && WeaponStatus[SCProp_Frag] >= MinFrag && plr && plr.incaptimer > 50 && plr.incapacitated > 0)
+		{
+			A_DeployCube(false);
+		}
+
 		Super.DoEffect();
 	}
 
@@ -258,28 +240,33 @@ class HDSoulCube : HDWeapon
 		return PickupMsg;
 	}
 
-	private action void VacuumItems()
+	private action void A_DeployCube(bool anchor)
 	{
-		for (int i = 0; i < invoker.VacuumedClasses.Size(); ++i)
+		let plr = invoker.owner;
+		invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
+		if (anchor)
 		{
-			class<HDPickup> a = invoker.VacuumedClasses[i];
-			if (!a || CountInv(a) >= 1000)
+			Actor a = AimTarget();
+			if (a && Distance3D(a) <= MaxRange)
 			{
-				continue;
+				invoker.Destination.master = a;
+				invoker.master = plr;
 			}
-
-			if (CheckProximity(a, MaxRange / 2, 1, CPXF_SETTRACER | CPXF_CLOSEST | CPXF_CHECKSIGHT))
+			else
 			{
-				let Item = HDPickup(tracer);
-				if (!Item || Item.pos ~== (0, 0, 0))
-				{
-					continue;
-				}
-
-				Item.ActualPickup(self);
-				break;
+				SetWeaponState("Nope");
+				return;
 			}
 		}
+		else
+		{
+			invoker.Destination.master = invoker.owner;
+		}
+
+		plr.DropInventory(invoker);
+		invoker.A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+		invoker.Active = true;
+		invoker.bNOGRAVITY = true;
 	}
 
 	private clearscope int GetMaxFrag()
@@ -287,20 +274,10 @@ class HDSoulCube : HDWeapon
 		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
 	}
 
-	static const string VacuumedClasses[] =
-	{
-		"SevenMilBrass",
-		"HDRel_RawBrass",
-		"HDRel_RawPlastic",
-		"HDRel_RawLead",
-		"HDRel_RawPowder"
-	};
-
 	const MinFrag = 5;
 	const MaxRange = 512;
 	const MaxLevel = 4;
 	bool Active;
-	bool Vacuum;
 	int PickupTimer;
 	int ShootTicker;
 	CubeDestination Destination;
@@ -328,12 +305,8 @@ class HDSoulCube : HDWeapon
 				invoker.PickupTimer--;
 				if (invoker.Active)
 				{
-					if (invoker.Vacuum)
-					{
-						VacuumItems();
-					}
-
 					invoker.Angle += 10;
+					int CubeLevel = invoker.WeaponStatus[SCProp_CubeLevel];
 
 					// [Ace] Move towards owner.
 					double OldAngle = invoker.Angle;
@@ -345,23 +318,23 @@ class HDSoulCube : HDWeapon
 							double PitchToDest = atan2(diff.z, diff.xy.length());
 
 							A_Face(invoker.Destination, 180, 45);
-							A_ChangeVelocity(0.75 * cos(PitchToDest), 0, 0.75 * sin(PitchToDest), CVF_RELATIVE);
+							A_ChangeVelocity(1.0 * cos(PitchToDest), 0, 1.0 * sin(PitchToDest), CVF_RELATIVE);
 							vel.x = clamp(vel.x, -6, 6);
 							vel.y = clamp(vel.y, -6, 6);
 							vel.z = clamp(vel.z, -6, 6);
 						}
 						else
 						{
-							A_ScaleVelocity(0.90);
+							A_ScaleVelocity(0.9);
 						}
 					}
 					else
 					{
-						A_ScaleVelocity(0.90);
+						A_ScaleVelocity(0.9);
 					}
 
 					Color PartCol;
-					switch (invoker.WeaponStatus[SCProp_CubeLevel])
+					switch (CubeLevel)
 					{
 						case 0: PartCol = 0x44FF44; break;
 						case 1: PartCol = 0x99FF11; break;
@@ -387,16 +360,22 @@ class HDSoulCube : HDWeapon
 						}
 					}
 
+					// [Ace] Target locator.
 					Array<Actor> TargetList;
 					Array<HDPlayerPawn> PlayerList;
 					int Size = 0;
 					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
 					while (Iterator.Next())
 					{
+						if (Distance3D(Iterator.thing) > MaxRange)
+						{
+							continue;
+						}
+
 						if (Size < 3)
 						{
 							Actor ZapTarget = Iterator.thing;
-							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && Distance3D(ZapTarget) < MaxRange && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 							{
 								for (int i = 0; i < 2; ++i)
 								{
@@ -409,17 +388,32 @@ class HDSoulCube : HDWeapon
 							}
 						}
 
-						if (Iterator.thing is 'HDPlayerPawn')
+						if (Iterator.thing is 'HDPlayerPawn' && CheckSight(Iterator.thing))
 						{
 							PlayerList.Push(HDPlayerPawn(Iterator.thing));
 						}
 					}
 
-					A_RadiusGive("HDFireDouse", MaxRange, RGF_PLAYERS | RGF_NOSIGHT, 20);
+					// [Ace] Fire, incap, and regeneration.
+					for (int i = 0; i < PlayerList.Size(); ++i)
+					{
+						let plr = PlayerList[i];
+						
+						plr.A_GiveInventory("HDFireDouse", 20);
+						if (CubeLevel >= 1 && plr.incaptimer > 0)
+						{
+							plr.incaptimer = max(plr.incaptimer - CubeLevel, 0);
+						}
+						if (CubeLevel >= 1 && plr.Health < plr.MaxHealth() && level.time % int(floor(175 - 11.66 * (CubeLevel - 1))) == 0)
+						{
+							plr.A_GiveInventory("Health", 1);
+						}
+					}
 
+					// [Ace] Attack stuff.
 					if (Size > 0)
 					{
-						if (++invoker.ShootTicker >= 35 - 5 * invoker.WeaponStatus[SCProp_CubeLevel])
+						if (++invoker.ShootTicker >= 35 - 5 * CubeLevel)
 						{
 							invoker.ShootTicker = 0;
 							invoker.WeaponStatus[SCProp_Frag]--;
@@ -427,7 +421,7 @@ class HDSoulCube : HDWeapon
 							{
 								if (TargetList[i])
 								{
-									TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * invoker.WeaponStatus[SCProp_CubeLevel], 'Holy');
+									TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * CubeLevel, 'Holy');
 									for (int j = 0; j < 80; ++j)
 									{
 										TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
@@ -437,11 +431,6 @@ class HDSoulCube : HDWeapon
 
 							for (int i = 0; i < PlayerList.Size(); ++i)
 							{
-								if (!CheckSight(PlayerList[i]))
-								{
-									continue;
-								}
-
 								let plr = PlayerList[i];
 
 								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
@@ -460,7 +449,7 @@ class HDSoulCube : HDWeapon
 
 									if (LastIndex > -1)
 									{
-										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + 2 * Size, Battery.MaxPerUnit);
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + Size, Battery.MaxPerUnit);
 									}
 									else
 									{
@@ -499,11 +488,7 @@ class HDSoulCube : HDWeapon
 					invoker.WeaponStatus[SCProp_UseOffset] = off * 2 / 3;
 				}
 
-				if (JustPressed(BT_ZOOM))
-				{
-					invoker.Vacuum = !invoker.Vacuum;
-				}
-				else if (PressingFire() || PressingAltfire())
+				if (PressingFire() || PressingAltfire())
 				{
 					SetWeaponState("Lower");
 					return;
@@ -551,31 +536,7 @@ class HDSoulCube : HDWeapon
 						SetWeaponState("Nope");
 						return;
 					}
-
-					invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
-					if (PressingAltfire())
-					{
-						Actor a = AimTarget();
-						if (a && Distance3D(a) < MaxRange)
-						{
-							invoker.Destination.master = a;
-							invoker.master = self;
-						}
-						else
-						{
-							SetWeaponState("Nope");
-							return;
-						}
-					}
-					else
-					{
-						invoker.Destination.master = self;
-					}
-
-					DropInventory(invoker);
-					invoker.A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
-					invoker.Active = true;
-					invoker.bNOGRAVITY = true;
+					A_DeployCube(PressingAltfire());
 				}
 			}
 			Wait;
