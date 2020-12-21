@@ -395,7 +395,7 @@ class HDSoulCube : HDWeapon
 						if (Size < 3)
 						{
 							Actor ZapTarget = Iterator.thing;
-							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && Distance3D(ZapTarget) < MaxRange && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
 							{
 								for (int i = 0; i < 2; ++i)
 								{
@@ -507,8 +507,8 @@ class HDSoulCube : HDWeapon
 			Goto ReadyEnd;
 		Lower:
 			TNT1 AA 1 A_AddOffset(6);
-			TNT1 AAAA 1 A_AddOffset(14);
-			TNT1 AAAA 1 A_AddOffset(30);
+			TNT1 AAAA 1 A_AddOffset(18);
+			TNT1 AAAAA 1 A_AddOffset(36);
 			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltfire(), "Ready");
 			TNT1 A 1
 			{
