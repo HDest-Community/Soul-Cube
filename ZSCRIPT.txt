@@ -170,10 +170,20 @@ class HDSoulCube : HDWeapon
 		return false;
 	}
 
-	// override void InitializeWepStats(bool idfa)
-	// {
-	// 	WeaponStatus[SCProp_Frag] = 100; // [Ace] Debug stuff.
-	// }
+	override void LoadoutConfigure(string input)
+	{
+		int StartLevel = GetLoadoutVar(input, "level", 1);
+		if (StartLevel > 0)
+		{
+			WeaponStatus[SCProp_CubeLevel] = min(StartLevel, MaxLevel);
+		}
+
+		int StartFrag = GetLoadoutVar(input, "frag", 3);
+		if (StartFrag > 0)
+		{
+			WeaponStatus[SCProp_Frag] = StartFrag;
+		}
+	}
 
 	override bool OnGrab(Actor other)
 	{

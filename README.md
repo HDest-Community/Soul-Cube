@@ -2,6 +2,9 @@
 ---
 - Soul cubes are found naturally in the world. Can also drop from [weapon crates](https://gitlab.com/accensi/hd-addons/weapon-crate).
 - Loadout code is `slc`.
+- Configuration codes are:
+	- `frag`: Starting frag.
+	- `level`: Starting level.
 
 ### How it works
 ---
