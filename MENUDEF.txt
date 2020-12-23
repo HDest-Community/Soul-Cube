@@ -1,0 +1,11 @@
+OptionMenu "SoulCubeMenu"
+{
+	Title "Soul Cube Options"
+
+	Option "Archer Mode", "hdsc_archermode", "OnOff"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+	Submenu "Soul Cube", "SoulCubeMenu"
+}

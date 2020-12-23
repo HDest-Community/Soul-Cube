@@ -6,3 +6,4 @@ Sprites:
 
  Sounds:
 - id Software
+- Archer for all the voice lines. Praise this guy too cause he's a legend.

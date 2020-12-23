@@ -1,0 +1,1 @@
+server bool hdsc_archermode = false;

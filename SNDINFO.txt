@@ -1,5 +1,131 @@
-SoulCube/Ready SOULRDY
-SoulCube/Use SOULHEAL
-$limit SoulCube/Use 3
-SoulCube/Ammo SOULAMMO
+SC/Activate SCACTIVT
+$limit SC/Activate 3
+SC/Ammo SCAMMO
 
+// --------------- PICKUP ---------------
+
+SC/Archer/PickupNormal1 SCPKUP01
+SC/Archer/PickupNormal2 SCPKUP02
+SC/Archer/PickupNormal3 SCPKUP03
+SC/Archer/PickupNormal4 SCPKUP04
+SC/Archer/PickupNormal5 SCPKUP05
+SC/Archer/PickupNormal6 SCPKUP06
+SC/Archer/PickupNormal7 SCPKUP07
+
+$random SC/Archer/PickupNormal
+{
+	SC/Archer/PickupNormal1
+	SC/Archer/PickupNormal2
+	SC/Archer/PickupNormal3
+	SC/Archer/PickupNormal4
+	SC/Archer/PickupNormal5
+	SC/Archer/PickupNormal6
+	SC/Archer/PickupNormal7
+}
+
+SC/Archer/PickupRare1 SCPKUP11
+SC/Archer/PickupRare2 SCPKUP12
+SC/Archer/PickupRare3 SCPKUP13
+SC/Archer/PickupRare4 SCPKUP14
+
+$random SC/Archer/PickupRare
+{
+	SC/Archer/PickupRare1
+	SC/Archer/PickupRare2
+	SC/Archer/PickupRare3
+	SC/Archer/PickupRare4
+}
+
+// --------------- READY ---------------
+
+SC/Original/Ready SCREADY0
+SC/Archer/Ready1 SCREADY1
+SC/Archer/Ready2 SCREADY2
+SC/Archer/Ready3 SCREADY3
+SC/Archer/Ready4 SCREADY4
+SC/Archer/Ready5 SCREADY5
+SC/Archer/Ready6 SCREADY6
+SC/Archer/Ready7 SCREADY7
+
+$random SC/Archer/Ready
+{
+	SC/Archer/Ready1
+	SC/Archer/Ready2
+	SC/Archer/Ready3
+	SC/Archer/Ready4
+	SC/Archer/Ready5
+	SC/Archer/Ready6
+	SC/Archer/Ready7
+}
+
+// --------------- CONSUME ---------------
+
+SC/Archer/Consume1 SCCONSM1
+SC/Archer/Consume2 SCCONSM2
+SC/Archer/Consume3 SCCONSM3
+SC/Archer/Consume4 SCCONSM4
+SC/Archer/Consume5 SCCONSM5
+SC/Archer/Consume6 SCCONSM6
+
+$random SC/Archer/Consume
+{
+	SC/Archer/Consume1
+	SC/Archer/Consume2
+	SC/Archer/Consume3
+	SC/Archer/Consume4
+	SC/Archer/Consume5
+	SC/Archer/Consume6
+}
+
+// --------------- USE/YEET ---------------
+
+SC/Archer/Use1 SCUSE1
+SC/Archer/Use2 SCUSE2
+SC/Archer/Use3 SCUSE3
+SC/Archer/Use4 SCUSE4
+SC/Archer/Use5 SCUSE5
+SC/Archer/Use6 SCUSE6
+SC/Archer/Use7 SCUSE7
+
+$random SC/Archer/Use
+{
+	SC/Archer/Use1
+	SC/Archer/Use2
+	SC/Archer/Use3
+	SC/Archer/Use4
+	SC/Archer/Use5
+	SC/Archer/Use6
+	SC/Archer/Use7
+}
+
+// --------------- SPIRITUAL ARMOR/PRAISE ---------------
+
+SC/Archer/Praise1 SCPRASE1
+SC/Archer/Praise2 SCPRASE2
+SC/Archer/Praise3 SCPRASE3
+SC/Archer/Praise4 SCPRASE4
+SC/Archer/Praise5 SCPRASE5
+SC/Archer/Praise6 SCPRASE6
+SC/Archer/Praise7 SCPRASE7
+
+$random SC/Archer/Praise
+{
+	SC/Archer/Praise1
+	SC/Archer/Praise2
+	SC/Archer/Praise3
+	SC/Archer/Praise4
+	SC/Archer/Praise5
+	SC/Archer/Praise6
+	SC/Archer/Praise7
+}
+
+// ---------------MISCELLANEOUS ---------------
+
+SC/Archer/MaxedOut1 SCMAXED1
+SC/Archer/MaxedOut2 SCMAXED2
+
+$random SC/Archer/MaxedOut
+{
+	SC/Archer/MaxedOut1
+	SC/Archer/MaxedOut2
+}

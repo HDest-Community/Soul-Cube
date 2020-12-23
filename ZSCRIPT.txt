@@ -72,7 +72,7 @@ class HDSoulCube : HDWeapon
 		{
 			if (hpl.aggravateddamage <= 20)
 			{
-				AggroString = "\c[SC_AggroVLow]Your soul is strong\c-";
+				AggroString = "\c[SC_AggroVLow]Your soul is weakening\c-";
 			}
 			else if (hpl.aggravateddamage <= 40)
 			{
@@ -151,7 +151,11 @@ class HDSoulCube : HDWeapon
 		{
 			if (self != Cube)
 			{
-				A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+				A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+				if (hdsc_archermode)
+				{
+					A_PlayArcherSound(newowner, "Consume");
+				}
 				if (Cube.WeaponStatus[SCProp_CubeLevel] < MaxLevel)
 				{
 					Cube.WeaponStatus[SCProp_CubeLevel] = min(Cube.WeaponStatus[SCProp_CubeLevel] + WeaponStatus[SCProp_CubeLevel] + 1, MaxLevel);
@@ -179,16 +183,6 @@ class HDSoulCube : HDWeapon
 			return false;
 		}
 
-		return Super.OnGrab(other);
-	}
-
-	override void ActualPickup(actor other, bool silent)
-	{
-		if (!other)
-		{
-			return;
-		}
-
 		if (Destination)
 		{
 			Destination.Destroy();
@@ -197,35 +191,53 @@ class HDSoulCube : HDWeapon
 		Active = false;
 		bNOGRAVITY = false;
 
-		Super.ActualPickup(other, silent);
+		if (hdsc_archermode)
+		{
+			A_PlayArcherSound(other, !random(0, 24) ? "PickupRare" : "PickupNormal");
+		}
+
+		return Super.OnGrab(other);
 	}
 
 	override void DoEffect()
 	{
-		if (WeaponStatus[SCProp_Frag] < GetMaxFrag() && level.time % (105 - 15 * WeaponStatus[SCProp_CubeLevel]) == 0 && !random(0, 1))
+		int MaxFrag = GetMaxFrag();
+		if (WeaponStatus[SCProp_Frag] <MaxFrag && level.time % int(105 - 17.5 * WeaponStatus[SCProp_CubeLevel]) == 0 && !random(0, 1))
 		{
 			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
 			while (Iterator.Next())
 			{
 				if (Iterator.thing is 'BFGNecroShard')
 				{
-					owner.A_StartSound("SoulCube/Ammo", 9, CHANF_LOCAL, volume: 0.45);
+					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag]++;
 					Iterator.thing.Destroy();
 
 					if (WeaponStatus[SCProp_Frag] == MinFrag)
 					{
-						owner.A_StartSound("SoulCube/Ready", 10, CHANF_LOCAL, volume: 0.25);
+						if (hdsc_archermode)
+						{
+							A_PlayArcherSound(owner, "Ready", 0.5, true);
+						}
+						else
+						{
+							owner.A_StartSound("SC/Original/Ready", 10, CHANF_LOCAL, volume: 0.40);
+						}
 					}
 					break;
 				}
 			}
 		}
+		else if (WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 5))
+		{
+			A_PlayArcherSound(owner, "MaxedOut", local: true);
+			MaxFragTicker = 0;
+		}
 
 		let plr = HDPlayerPawn(owner);
 		if (!Active && WeaponStatus[SCProp_Frag] >= MinFrag && plr && plr.incaptimer > 50 && plr.incapacitated > 0)
 		{
-			A_DeployCube(false);
+			A_DeployCube(false, true);
 		}
 
 		Super.DoEffect();
@@ -233,14 +245,19 @@ class HDSoulCube : HDWeapon
 
 	override string PickupMessage()
 	{
+		string BaseMessage = "Picked up the soul cube.";
+		if (hdsc_archermode)
+		{
+			BaseMessage = BaseMessage.." You hear strange voices coming out of it. It is... speaking to you?";
+		}
 		if (!random(0, 32))
 		{
-			return PickupMsg.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuoob\".";
+			BaseMessage.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuob\".";
 		}
-		return PickupMsg;
+		return BaseMessage;
 	}
 
-	private action void A_DeployCube(bool anchor)
+	private action void A_DeployCube(bool anchor, bool fromIncap)
 	{
 		let plr = invoker.owner;
 		invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
@@ -264,7 +281,11 @@ class HDSoulCube : HDWeapon
 		}
 
 		plr.DropInventory(invoker);
-		invoker.A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+		if (!fromIncap && hdsc_archermode)
+		{
+			A_PlayArcherSound(plr, "Use");
+		}
 		invoker.Active = true;
 		invoker.bNOGRAVITY = true;
 	}
@@ -274,12 +295,19 @@ class HDSoulCube : HDWeapon
 		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
 	}
 
+	private action void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
+	{
+		a.A_StopSound(10);
+		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
+	}
+
 	const MinFrag = 5;
 	const MaxRange = 512;
 	const MaxLevel = 4;
 	bool Active;
 	int PickupTimer;
 	int ShootTicker;
+	int MaxFragTicker;
 	CubeDestination Destination;
 
 	Default
@@ -291,7 +319,6 @@ class HDSoulCube : HDWeapon
 		+NODAMAGETHRUST
 		+HDWEAPON.DONTFISTONDROP
 		Inventory.PickupSound "misc/w_pkup";
-		Inventory.PickupMessage "Picked up the soul cube.";
 		Scale 0.5;
 		HDWeapon.RefId "slc";
 		Tag "Soul Cube";
@@ -531,12 +558,16 @@ class HDSoulCube : HDWeapon
 								invoker.WeaponStatus[SCProp_Frag] -= 20;
 							}
 						}
-					
-						A_StartSound("SoulCube/Use", CHAN_WEAPON, volume: 0.5);
+						
+						A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+						if (hdsc_archermode)
+						{
+							A_PlayArcherSound(self, "Praise");
+						}
 						SetWeaponState("Nope");
 						return;
 					}
-					A_DeployCube(PressingAltfire());
+					A_DeployCube(PressingAltfire(), false);
 				}
 			}
 			Wait;
