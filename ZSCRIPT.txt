@@ -458,8 +458,13 @@ class HDSoulCube : HDWeapon
 						{
 							plr.incaptimer = max(plr.incaptimer - CubeLevel, 0);
 						}
-						if (CubeLevel >= 1 && plr.Health < plr.MaxHealth() && level.time % int(175 - 17.5 * CubeLevel) == 0)
+						bool HasBlues = plr.regenblues > 0;
+						if (CubeLevel >= 1 && plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (CubeLevel - 1) - (HasBlues ? 35 : 0)) == 0)
 						{
+							if (HasBlues)
+							{
+								plr.regenblues--;
+							}
 							plr.A_GiveInventory("Health", 1);
 						}
 					}
