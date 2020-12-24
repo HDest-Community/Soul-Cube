@@ -262,7 +262,7 @@ class HDSoulCube : HDWeapon
 		}
 
 		let plr = HDPlayerPawn(owner);
-		if (!Active && WeaponStatus[SCProp_Frag] >= MinFrag && plr && plr.incaptimer > 50 && plr.incapacitated > 0)
+		if (!Active && WeaponStatus[SCProp_Frag] >= MinFrag && plr && plr.incapacitated > 0)
 		{
 			A_DeployCube(false, true);
 		}
