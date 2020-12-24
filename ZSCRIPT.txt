@@ -143,6 +143,23 @@ class HDSoulCube : HDWeapon
 		return Frag;
 	}
 
+	override int DisplayAmount()
+	{
+		let HDHud = HDStatusBar(StatusBar);
+
+		int Level = WeaponStatus[SCProp_CubeLevel];
+		int Col = Font.FindFontColor("SC_Level_1");
+		switch (Level)
+		{
+			case 1: Col = Font.FindFontColor("SC_Level_2"); break;
+			case 2: Col = Font.CR_YELLOW; break;
+			case 3: Col = Font.CR_ORANGE; break;
+			case 4: Col = Font.CR_RED; break;
+		}
+		HDHud.SavedColour = Col;
+		return WeaponStatus[SCProp_CubeLevel];
+	}
+
 	override bool AddSpareWeapon(actor newowner)
 	{
 		// [Ace] This pointer is for the existing cube in the player's inventory.

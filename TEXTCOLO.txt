@@ -10,3 +10,6 @@ SC_AggroLow { #000000 #00940c }
 SC_AggroMed { #000000 #134e18 }
 SC_AggroHigh { #000000 #08210a }
 SC_AggroUlt { #000000 #171717 }
+
+SC_Level_1 { #010f00 #10eb00 }
+SC_Level_2 { #0b1400 #7ef500 }
