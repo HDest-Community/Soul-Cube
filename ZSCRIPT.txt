@@ -235,13 +235,16 @@ class HDSoulCube : HDWeapon
 			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
 			while (Iterator.Next())
 			{
-				if (Iterator.thing is 'BFGNecroShard')
+				bool IsSuperShard = Iterator.thing is 'NecroGhostShard';
+				bool IsRegularShard = Iterator.thing is 'BFGNecroShard';
+				
+				if (IsRegularShard || IsSuperShard && !random(0, 2))
 				{
 					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
-					WeaponStatus[SCProp_Frag]++;
+					WeaponStatus[SCProp_Frag] += IsSuperShard ? 3 : 1;
 					Iterator.thing.Destroy();
 
-					if (WeaponStatus[SCProp_Frag] == MinFrag)
+					if (WeaponStatus[SCProp_Frag] >= MinFrag)
 					{
 						if (hdsc_archermode)
 						{
@@ -252,12 +255,6 @@ class HDSoulCube : HDWeapon
 							owner.A_StartSound("SC/Original/Ready", 10, CHANF_LOCAL, volume: 0.40);
 						}
 					}
-					break;
-				}
-				else if (Iterator.thing is 'NecroGhostShard' && !random(0, 2))
-				{
-					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
-					WeaponStatus[SCProp_Frag] += 3;
 					break;
 				}
 			}
