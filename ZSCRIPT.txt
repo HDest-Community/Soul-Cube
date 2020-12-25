@@ -254,7 +254,7 @@ class HDSoulCube : HDWeapon
 					}
 					break;
 				}
-				else if (Iterator.thing is 'NecroGhost' && !random(0, 2))
+				else if (Iterator.thing is 'NecroGhostShard' && !random(0, 2))
 				{
 					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag] += 3;
