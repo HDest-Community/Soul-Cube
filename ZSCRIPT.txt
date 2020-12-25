@@ -237,14 +237,14 @@ class HDSoulCube : HDWeapon
 			{
 				bool IsSuperShard = Iterator.thing is 'NecroGhostShard';
 				bool IsRegularShard = Iterator.thing is 'BFGNecroShard';
-				
+
 				if (IsRegularShard || IsSuperShard && !random(0, 2))
 				{
 					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag] += IsSuperShard ? 3 : 1;
 					Iterator.thing.Destroy();
 
-					if (WeaponStatus[SCProp_Frag] >= MinFrag)
+					if (!HasAnnouncedReady && WeaponStatus[SCProp_Frag] >= MinFrag)
 					{
 						if (hdsc_archermode)
 						{
@@ -254,6 +254,7 @@ class HDSoulCube : HDWeapon
 						{
 							owner.A_StartSound("SC/Original/Ready", 10, CHANF_LOCAL, volume: 0.40);
 						}
+						HasAnnouncedReady = true;
 					}
 					break;
 				}
@@ -336,6 +337,7 @@ class HDSoulCube : HDWeapon
 	const MaxRange = 512;
 	const MaxLevel = 4;
 	bool Active;
+	bool HasAnnouncedReady;
 	int PickupTimer;
 	int ShootTicker;
 	int MaxFragTicker;
@@ -480,6 +482,11 @@ class HDSoulCube : HDWeapon
 						{
 							invoker.ShootTicker = 0;
 							invoker.WeaponStatus[SCProp_Frag]--;
+							if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+							{
+								invoker.HasAnnouncedReady = false;
+							}
+
 							for (int i = 0; i < Size; ++i)
 							{
 								if (TargetList[i])
@@ -592,6 +599,10 @@ class HDSoulCube : HDWeapon
 								}
 								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
 								invoker.WeaponStatus[SCProp_Frag] -= 20;
+								if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+								{
+									invoker.HasAnnouncedReady = false;
+								}
 							}
 						}
 						
