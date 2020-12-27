@@ -12,7 +12,7 @@ class SoulCubeHandler : StaticEventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'Lumberjack':
-				if (random[cuberand]() <= 64)
+				if (random[cuberand]() <= 84)
 				{
 					e.Replacement = "HDSoulCube";
 				}
