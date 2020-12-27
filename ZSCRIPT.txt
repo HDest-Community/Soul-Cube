@@ -179,7 +179,7 @@ class HDSoulCube : HDWeapon
 				}
 				else
 				{
-					Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 10;
+					Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
 				}
 				Destroy();
 			}
