@@ -110,7 +110,7 @@ class HDSoulCube : HDWeapon
 		{
 			if (hpl.regenblues <= 72)
 			{
-				BluesString = "\c[SC_BluesVLow]There is barely anything supernatural in you\c-";
+				BluesString = "\c[SC_BluesVLow]A faint supernatural presence can be felt\c-";
 			}
 			else if (hpl.regenblues <= 144)
 			{
@@ -136,7 +136,7 @@ class HDSoulCube : HDWeapon
 		string ProtectionString = "\c[Red]You are not protected\c-";
 		switch (sb.GetAmount("SpiritualArmour"))
 		{
-			case 1: ProtectionString = "\c[Orange]You are barely protected\c-"; break;
+			case 1: ProtectionString = "\c[Orange]You are protected by a thin veil\c-"; break;
 			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul\c-"; break;
 			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm\c-"; break;
 		}
