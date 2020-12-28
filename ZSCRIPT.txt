@@ -494,6 +494,7 @@ class HDSoulCube : HDWeapon
 							if (HasBlues)
 							{
 								plr.regenblues--;
+								A_GainExperience(1);
 							}
 							plr.A_GiveInventory("Health", 1);
 							A_GainExperience(1);
@@ -556,7 +557,6 @@ class HDSoulCube : HDWeapon
 								{
 									plr.regenblues += 4 * HitThingCount;
 								}
-								A_GainExperience(1); // [Ace] Per affected player.
 							}
 						}
 					}
