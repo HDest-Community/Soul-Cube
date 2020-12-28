@@ -12,6 +12,7 @@
 - It needs at least 5 frag to become active.
 - Max frag capacity is 20 + 5 for each extra level.
 - Max level is 4. Cube starts at level 0.
+- Level is increased by gaining experience. Experience is gained by using the cube.
 - Each level increases damage and rate of fire.
 - Frag collection frequency increases with level. Range does not.
 - Attacks up to 3 enemies at once, dealing a flat amount of damage and ignoring shields/armor. Each attack costs 1 frag.

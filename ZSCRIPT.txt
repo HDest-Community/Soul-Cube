@@ -12,7 +12,7 @@ class SoulCubeHandler : StaticEventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'Lumberjack':
-				if (random[cuberand]() <= 84)
+				if (random[cuberand]() <= 64)
 				{
 					e.Replacement = "HDSoulCube";
 				}
@@ -27,7 +27,8 @@ class HDSoulCube : HDWeapon
 	{
 		SCProp_UseOffset,
 		SCProp_Frag,
-		SCProp_CubeLevel
+		SCProp_CubeLevel,
+		SCProp_CubeExperience
 	}
 
 	action void A_AddOffset(int ofs)
@@ -179,18 +180,8 @@ class HDSoulCube : HDWeapon
 			if (self != Cube)
 			{
 				A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
-				if (hdsc_archermode)
-				{
-					A_PlayArcherSound(newowner, "Consume");
-				}
-				if (Cube.WeaponStatus[SCProp_CubeLevel] < MaxLevel)
-				{
-					Cube.WeaponStatus[SCProp_CubeLevel] = min(Cube.WeaponStatus[SCProp_CubeLevel] + WeaponStatus[SCProp_CubeLevel] + 1, MaxLevel);
-				}
-				else
-				{
-					Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
-				}
+				Cube.A_GainExperience(200);
+				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
 				Destroy();
 			}
 		}
@@ -202,7 +193,7 @@ class HDSoulCube : HDWeapon
 		int StartLevel = GetLoadoutVar(input, "level", 1);
 		if (StartLevel > 0)
 		{
-			WeaponStatus[SCProp_CubeLevel] = min(StartLevel, MaxLevel);
+			WeaponStatus[SCProp_CubeLevel] = min(StartLevel, ExperienceReqs.Size());
 		}
 
 		int StartFrag = GetLoadoutVar(input, "frag", 3);
@@ -252,6 +243,7 @@ class HDSoulCube : HDWeapon
 				{
 					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag] += IsSuperShard ? 3 : 1;
+					A_GainExperience(IsSuperShard ? 3 : 1);
 					Iterator.thing.Destroy();
 
 					if (!HasAnnouncedReady && WeaponStatus[SCProp_Frag] >= MinFrag)
@@ -322,6 +314,7 @@ class HDSoulCube : HDWeapon
 			invoker.Destination.master = invoker.owner;
 		}
 
+		invoker.master = plr;
 		plr.DropInventory(invoker);
 		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 		if (!fromIncap && hdsc_archermode)
@@ -332,20 +325,42 @@ class HDSoulCube : HDWeapon
 		invoker.bNOGRAVITY = true;
 	}
 
+	private action void A_GainExperience(int amount)
+	{
+		let plr = invoker.owner ? invoker.owner : invoker.master;
+		int CubeLevel = invoker.WeaponStatus[SCProp_CubeLevel];
+		if (CubeLevel >= invoker.ExperienceReqs.Size())
+		{
+			return;
+		}
+
+		invoker.WeaponStatus[SCProp_CubeExperience] += amount;
+		if (invoker.WeaponStatus[SCProp_CubeExperience] >= invoker.ExperienceReqs[CubeLevel])
+		{
+			invoker.WeaponStatus[SCProp_CubeLevel]++;
+			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+			if (hdsc_archermode)
+			{
+				A_PlayArcherSound(invoker, "LevelUp");
+			}
+			plr.A_Log("The cube's power grows.", true);
+		}
+	}
+
 	private clearscope int GetMaxFrag()
 	{
 		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
 	}
 
-	private action void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
+	static void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
 	{
 		a.A_StopSound(10);
 		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
 	}
 
+	static const int ExperienceReqs[] = { 300, 800, 1500, 2400 };
 	const MinFrag = 5;
 	const MaxRange = 512;
-	const MaxLevel = 4;
 	bool Active;
 	bool HasAnnouncedReady;
 	int PickupTimer;
@@ -432,7 +447,7 @@ class HDSoulCube : HDWeapon
 					// [Ace] Target locator.
 					Array<Actor> TargetList;
 					Array<HDPlayerPawn> PlayerList;
-					int Size = 0;
+					int HitThingCount = 0;
 					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
 					while (Iterator.Next())
 					{
@@ -441,7 +456,7 @@ class HDSoulCube : HDWeapon
 							continue;
 						}
 
-						if (Size < 3)
+						if (HitThingCount < 3)
 						{
 							Actor ZapTarget = Iterator.thing;
 							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
@@ -452,7 +467,7 @@ class HDSoulCube : HDWeapon
 								}
 
 								TargetList.Push(ZapTarget);
-								Size = TargetList.Size();
+								HitThingCount = TargetList.Size();
 								continue;
 							}
 						}
@@ -481,11 +496,12 @@ class HDSoulCube : HDWeapon
 								plr.regenblues--;
 							}
 							plr.A_GiveInventory("Health", 1);
+							A_GainExperience(1);
 						}
 					}
 
 					// [Ace] Attack stuff.
-					if (Size > 0)
+					if (HitThingCount > 0)
 					{
 						if (++invoker.ShootTicker >= 35 - 5 * CubeLevel)
 						{
@@ -496,7 +512,7 @@ class HDSoulCube : HDWeapon
 								invoker.HasAnnouncedReady = false;
 							}
 
-							for (int i = 0; i < Size; ++i)
+							for (int i = 0; i < HitThingCount; ++i)
 							{
 								if (TargetList[i])
 								{
@@ -505,6 +521,7 @@ class HDSoulCube : HDWeapon
 									{
 										TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
 									}
+									A_GainExperience(1); // [Ace] Per enemy hit.
 								}
 							}
 
@@ -525,20 +542,21 @@ class HDSoulCube : HDWeapon
 											LastIndex = i;
 										}
 									}
-
+									
 									if (LastIndex > -1)
 									{
-										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + Size, Battery.MaxPerUnit);
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + HitThingCount, Battery.MaxPerUnit);
 									}
-									else
+									else // [Ace] Batteries were full.
 									{
-										plr.regenblues += 4 * Size;
+										plr.regenblues += 4 * HitThingCount;
 									}
 								}
 								else
 								{
-									plr.regenblues += 4 * Size;
+									plr.regenblues += 4 * HitThingCount;
 								}
+								A_GainExperience(1); // [Ace] Per affected player.
 							}
 						}
 					}
@@ -612,6 +630,7 @@ class HDSoulCube : HDWeapon
 								{
 									invoker.HasAnnouncedReady = false;
 								}
+								A_GainExperience(20);
 							}
 						}
 						
