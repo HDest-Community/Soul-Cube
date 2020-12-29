@@ -180,6 +180,10 @@ class HDSoulCube : HDWeapon
 			if (self != Cube)
 			{
 				A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+				if (hdsc_archermode)
+				{
+					A_PlayArcherSound(newowner, "Consume");
+				}
 				Cube.A_GainExperience(200);
 				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
 				Destroy();

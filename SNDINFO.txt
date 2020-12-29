@@ -58,7 +58,7 @@ $random SC/Archer/Ready
 	SC/Archer/Ready7
 }
 
-// --------------- CONSUME ---------------
+// --------------- LEVEL UP ---------------
 
 SC/Archer/LevelUp1 SCLEVUP1
 SC/Archer/LevelUp2 SCLEVUP2
@@ -73,6 +73,15 @@ $random SC/Archer/LevelUp
 	SC/Archer/LevelUp3
 	SC/Archer/LevelUp4
 	SC/Archer/LevelUp5
+}
+
+// ---------------CONSUME ---------------
+
+SC/Archer/Consume1 SCCONSM1
+
+$random SC/Archer/Consume
+{
+	SC/Archer/Consume1
 }
 
 // --------------- USE/YEET ---------------
