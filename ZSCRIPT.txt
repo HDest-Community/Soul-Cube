@@ -345,7 +345,7 @@ class HDSoulCube : HDWeapon
 			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 			if (hdsc_archermode)
 			{
-				A_PlayArcherSound(invoker, "LevelUp");
+				A_PlayArcherSound(plr, "LevelUp", local: true);
 			}
 			plr.A_Log("The cube's power grows.", true);
 		}
