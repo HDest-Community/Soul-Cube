@@ -341,6 +341,7 @@ class HDSoulCube : HDWeapon
 		invoker.WeaponStatus[SCProp_CubeExperience] += amount;
 		if (invoker.WeaponStatus[SCProp_CubeExperience] >= invoker.ExperienceReqs[CubeLevel])
 		{
+			invoker.WeaponStatus[SCProp_CubeExperience] -= invoker.ExperienceReqs[CubeLevel];
 			invoker.WeaponStatus[SCProp_CubeLevel]++;
 			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 			if (hdsc_archermode)
@@ -362,7 +363,7 @@ class HDSoulCube : HDWeapon
 		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
 	}
 
-	static const int ExperienceReqs[] = { 200, 500, 900, 1400 };
+	static const int ExperienceReqs[] = { 200, 400, 600, 800 };
 	const MinFrag = 5;
 	const MaxRange = 512;
 	bool Active;
