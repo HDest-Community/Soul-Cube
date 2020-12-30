@@ -21,5 +21,5 @@
 
 ##### While it is out, it has these passive effects:
 - Helps put out fire faster.
-- Helps with incap.
-- Speeds up regeneration.
+- [L1+] Helps with incap.
+- [L1+] Speeds up regeneration.

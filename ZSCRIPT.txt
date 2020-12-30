@@ -362,7 +362,7 @@ class HDSoulCube : HDWeapon
 		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
 	}
 
-	static const int ExperienceReqs[] = { 300, 800, 1500, 2400 };
+	static const int ExperienceReqs[] = { 200, 500, 900, 1400 };
 	const MinFrag = 5;
 	const MaxRange = 512;
 	bool Active;
@@ -488,20 +488,23 @@ class HDSoulCube : HDWeapon
 						let plr = PlayerList[i];
 						
 						plr.A_GiveInventory("HDFireDouse", 20);
-						if (CubeLevel >= 1 && plr.incaptimer > 0)
+						if (CubeLevel >= 1)
 						{
-							plr.incaptimer = max(plr.incaptimer - CubeLevel, 0);
-						}
-						bool HasBlues = plr.regenblues > 0;
-						if (CubeLevel >= 1 && plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (CubeLevel - 1) - (HasBlues ? 35 : 0)) == 0)
-						{
-							if (HasBlues)
+							if (plr.incaptimer > 0)
 							{
-								plr.regenblues--;
+								plr.incaptimer = max(plr.incaptimer - CubeLevel, 0);
+							}
+							bool HasBlues = plr.regenblues > 0;
+							if (plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (CubeLevel - 1) - (HasBlues ? 35 : 0)) == 0)
+							{
+								if (HasBlues)
+								{
+									plr.regenblues--;
+									A_GainExperience(1);
+								}
+								plr.A_GiveInventory("Health", 1);
 								A_GainExperience(1);
 							}
-							plr.A_GiveInventory("Health", 1);
-							A_GainExperience(1);
 						}
 					}
 
