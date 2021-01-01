@@ -27,6 +27,7 @@ SC/Archer/PickupRare1 SCPKUP11
 SC/Archer/PickupRare2 SCPKUP12
 SC/Archer/PickupRare3 SCPKUP13
 SC/Archer/PickupRare4 SCPKUP14
+SC/Archer/PickupRare5 SCPKUP15
 
 $random SC/Archer/PickupRare
 {
@@ -34,6 +35,7 @@ $random SC/Archer/PickupRare
 	SC/Archer/PickupRare2
 	SC/Archer/PickupRare3
 	SC/Archer/PickupRare4
+	SC/Archer/PickupRare5
 }
 
 // --------------- READY ---------------
@@ -77,32 +79,54 @@ $random SC/Archer/LevelUp
 
 // ---------------CONSUME ---------------
 
-SC/Archer/Consume1 SCCONSM1
+SC/Archer/ConsumeNormal1 SCCNSM01
+SC/Archer/ConsumeNormal2 SCCNSM02
+SC/Archer/ConsumeNormal3 SCCNSM03
+SC/Archer/ConsumeNormal4 SCCNSM04
+SC/Archer/ConsumeNormal5 SCCNSM05
 
-$random SC/Archer/Consume
+$random SC/Archer/ConsumeNormal
 {
-	SC/Archer/Consume1
+	SC/Archer/ConsumeNormal1
+	SC/Archer/ConsumeNormal2
+	SC/Archer/ConsumeNormal3
+	SC/Archer/ConsumeNormal4
+	SC/Archer/ConsumeNormal5
 }
 
-// --------------- USE/YEET ---------------
+SC/Archer/ConsumeRare1 SCCNSM11
 
-SC/Archer/Use1 SCUSE1
-SC/Archer/Use2 SCUSE2
-SC/Archer/Use3 SCUSE3
-SC/Archer/Use4 SCUSE4
-SC/Archer/Use5 SCUSE5
-SC/Archer/Use6 SCUSE6
-SC/Archer/Use7 SCUSE7
-
-$random SC/Archer/Use
+$random SC/Archer/ConsumeRare
 {
-	SC/Archer/Use1
-	SC/Archer/Use2
-	SC/Archer/Use3
-	SC/Archer/Use4
-	SC/Archer/Use5
-	SC/Archer/Use6
-	SC/Archer/Use7
+	SC/Archer/ConsumeRare1
+}
+
+// --------------- USE ---------------
+
+SC/Archer/UseNormal1 SCUSE01
+SC/Archer/UseNormal2 SCUSE02
+SC/Archer/UseNormal3 SCUSE03
+SC/Archer/UseNormal4 SCUSE04
+SC/Archer/UseNormal5 SCUSE05
+SC/Archer/UseNormal6 SCUSE06
+SC/Archer/UseNormal7 SCUSE07
+
+$random SC/Archer/UseNormal
+{
+	SC/Archer/UseNormal1
+	SC/Archer/UseNormal2
+	SC/Archer/UseNormal3
+	SC/Archer/UseNormal4
+	SC/Archer/UseNormal5
+	SC/Archer/UseNormal6
+	SC/Archer/UseNormal7
+}
+
+SC/Archer/UseRare1 SCUSE11
+
+$random SC/Archer/UseRare
+{
+	SC/Archer/UseRare1
 }
 
 // --------------- SPIRITUAL ARMOR/PRAISE ---------------
@@ -124,6 +148,56 @@ $random SC/Archer/Praise
 	SC/Archer/Praise5
 	SC/Archer/Praise6
 	SC/Archer/Praise7
+}
+
+// ---------------FULL ---------------
+
+SC/Archer/FullNormal1 SCFULL01
+SC/Archer/FullNormal2 SCFULL02
+SC/Archer/FullNormal3 SCFULL03
+SC/Archer/FullNormal4 SCFULL04
+SC/Archer/FullNormal5 SCFULL05
+
+$random SC/Archer/FullNormal
+{
+	SC/Archer/FullNormal1
+	SC/Archer/FullNormal2
+	SC/Archer/FullNormal3
+	SC/Archer/FullNormal4
+	SC/Archer/FullNormal5
+}
+
+SC/Archer/FullRare1 SCFULL11
+SC/Archer/FullRare2 SCFULL12
+
+$random SC/Archer/FullRare
+{
+	SC/Archer/FullRare1
+	SC/Archer/FullRare2
+}
+
+// --------------- POWER DOWN ---------------
+
+SC/Archer/PowerDownNormal1 SCPDWN01
+SC/Archer/PowerDownNormal2 SCPDWN02
+SC/Archer/PowerDownNormal3 SCPDWN03
+SC/Archer/PowerDownNormal4 SCPDWN04
+SC/Archer/PowerDownNormal5 SCPDWN05
+
+$random SC/Archer/PowerDownNormal
+{
+	SC/Archer/PowerDownNormal1
+	SC/Archer/PowerDownNormal2
+	SC/Archer/PowerDownNormal3
+	SC/Archer/PowerDownNormal4
+	SC/Archer/PowerDownNormal5
+}
+
+SC/Archer/PowerDownRare1 SCPDWN11
+
+$random SC/Archer/PowerDownRare
+{
+	SC/Archer/PowerDownRare1
 }
 
 // ---------------MISCELLANEOUS ---------------
