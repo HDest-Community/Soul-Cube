@@ -29,7 +29,6 @@ SC/Archer/PickupRare1 SCPKUP11
 SC/Archer/PickupRare2 SCPKUP12
 SC/Archer/PickupRare3 SCPKUP13
 SC/Archer/PickupRare4 SCPKUP14
-SC/Archer/PickupRare5 SCPKUP15
 
 $random SC/Archer/PickupRare
 {
@@ -37,7 +36,6 @@ $random SC/Archer/PickupRare
 	SC/Archer/PickupRare2
 	SC/Archer/PickupRare3
 	SC/Archer/PickupRare4
-	SC/Archer/PickupRare5
 }
 
 SC/Archer/PickupSpecial1 SCPKUP21
@@ -136,12 +134,14 @@ $random SC/Archer/UseNormal
 SC/Archer/UseRare1 SCUSE11
 SC/Archer/UseRare2 SCUSE12
 SC/Archer/UseRare3 SCUSE13
+SC/Archer/UseRare4 SCUSE14
 
 $random SC/Archer/UseRare
 {
 	SC/Archer/UseRare1
 	SC/Archer/UseRare2
 	SC/Archer/UseRare3
+	SC/Archer/UseRare4
 }
 
 // --------------- SPIRITUAL ARMOR/PRAISE ---------------
