@@ -387,7 +387,7 @@ class HDSoulCube : HDWeapon
 		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
 	}
 
-	static const int ExperienceReqs[] = { 200, 400, 600, 800 };
+	static const int ExperienceReqs[] = { 200, 500, 1000, 1500 };
 	const MinFrag = 5;
 	const MaxRange = 512;
 	bool Active;
