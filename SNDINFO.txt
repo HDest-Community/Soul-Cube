@@ -103,13 +103,6 @@ $random SC/Archer/ConsumeNormal
 	SC/Archer/ConsumeNormal5
 }
 
-SC/Archer/ConsumeRare1 SCCNSM11
-
-$random SC/Archer/ConsumeRare
-{
-	SC/Archer/ConsumeRare1
-}
-
 // --------------- USE ---------------
 
 SC/Archer/UseNormal1 SCUSE01
