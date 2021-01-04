@@ -23,3 +23,4 @@
 - Helps put out fire faster.
 - [L1+] Helps with incap.
 - [L1+] Speeds up regeneration.
+- Compels pained archviles to show up sooner.

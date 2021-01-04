@@ -491,6 +491,12 @@ class HDSoulCube : HDWeapon
 							continue;
 						}
 
+						let Necro = Necromancer(Iterator.thing);
+						if (Necro && Necro.tics > 200 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
+						{
+							Necro.tics -= 3;
+						}
+
 						if (HitThingCount < 3)
 						{
 							Actor ZapTarget = Iterator.thing;
