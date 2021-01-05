@@ -486,31 +486,28 @@ class HDSoulCube : HDWeapon
 					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
 					while (Iterator.Next())
 					{
-						if (Distance3D(Iterator.thing) > MaxRange)
+						Actor a = Iterator.thing;
+						if (Distance3D(a) > MaxRange || a.bFRIENDLY || a.Health <= 0 || !CheckSight(a))
 						{
 							continue;
 						}
 
-						let Necro = Necromancer(Iterator.thing);
+						let Necro = Necromancer(a);
 						if (Necro && Necro.tics > 200 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
 						{
 							Necro.tics -= 3;
 						}
 
-						if (HitThingCount < 3)
+						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE)
 						{
-							Actor ZapTarget = Iterator.thing;
-							if ((ZapTarget is 'BonerBall' || ZapTarget.bISMONSTER) && ZapTarget.bSHOOTABLE && !ZapTarget.bFRIENDLY && ZapTarget.Health > 0 && CheckSight(ZapTarget))
+							for (int i = 0; i < 2; ++i)
 							{
-								for (int i = 0; i < 2; ++i)
-								{
-									ZapTarget.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(-ZapTarget.Radius, ZapTarget.Radius), frandom(0, ZapTarget.Height), 0, 0, random(3, 6));
-								}
-
-								TargetList.Push(ZapTarget);
-								HitThingCount = TargetList.Size();
-								continue;
+								a.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-a.Radius, a.Radius), frandom(-a.Radius, a.Radius), frandom(0, a.Height), 0, 0, random(3, 6));
 							}
+
+							TargetList.Push(a);
+							HitThingCount = TargetList.Size();
+							continue;
 						}
 
 						if (Iterator.thing is 'HDPlayerPawn' && CheckSight(Iterator.thing))
