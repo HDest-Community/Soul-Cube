@@ -29,6 +29,7 @@ SC/Archer/PickupRare1 SCPKUP11
 SC/Archer/PickupRare2 SCPKUP12
 SC/Archer/PickupRare3 SCPKUP13
 SC/Archer/PickupRare4 SCPKUP14
+SC/Archer/PickupRare5 SCPKUP15
 
 $random SC/Archer/PickupRare
 {
@@ -36,6 +37,7 @@ $random SC/Archer/PickupRare
 	SC/Archer/PickupRare2
 	SC/Archer/PickupRare3
 	SC/Archer/PickupRare4
+	SC/Archer/PickupRare5
 }
 
 SC/Archer/PickupSpecial1 SCPKUP21
@@ -191,6 +193,7 @@ SC/Archer/PowerDownNormal2 SCPDWN02
 SC/Archer/PowerDownNormal3 SCPDWN03
 SC/Archer/PowerDownNormal4 SCPDWN04
 SC/Archer/PowerDownNormal5 SCPDWN05
+SC/Archer/PowerDownNormal6 SCPDWN06
 
 $random SC/Archer/PowerDownNormal
 {
@@ -199,6 +202,7 @@ $random SC/Archer/PowerDownNormal
 	SC/Archer/PowerDownNormal3
 	SC/Archer/PowerDownNormal4
 	SC/Archer/PowerDownNormal5
+	SC/Archer/PowerDownNormal6
 }
 
 SC/Archer/PowerDownRare1 SCPDWN11

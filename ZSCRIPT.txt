@@ -237,7 +237,7 @@ class HDSoulCube : HDWeapon
 			}
 			else
 			{
-				A_PlayArcherSound(other, !random(0, 24) ? "PickupRare" : "PickupNormal");
+				A_PlayArcherSound(other, !random(0, 28) ? "PickupRare" : "PickupNormal");
 			}
 			WeaponStatus[SCProp_Flags] |= SCF_AlreadyPickedUp;
 		}
@@ -281,7 +281,7 @@ class HDSoulCube : HDWeapon
 					{
 						if (!random(0, 1))
 						{
-							A_PlayArcherSound(owner, !random(0, 8) ? "FullRare" : "FullNormal");
+							A_PlayArcherSound(owner, !random(0, 12) ? "FullRare" : "FullNormal");
 						}
 						HasAnnouncedFull = true;
 					}
@@ -347,7 +347,7 @@ class HDSoulCube : HDWeapon
 		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 		if (!fromIncap && hdsc_archermode)
 		{
-			A_PlayArcherSound(plr, !random(0, 14) ? "UseRare" : "UseNormal");
+			A_PlayArcherSound(plr, !random(0, 20) ? "UseRare" : "UseNormal");
 		}
 		invoker.Active = true;
 		invoker.bNOGRAVITY = true;
