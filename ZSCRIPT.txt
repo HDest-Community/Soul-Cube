@@ -242,6 +242,8 @@ class HDSoulCube : HDWeapon
 			WeaponStatus[SCProp_Flags] |= SCF_AlreadyPickedUp;
 		}
 
+		HasAnnounced[2] = false;
+
 		return Super.OnGrab(other);
 	}
 
@@ -391,8 +393,7 @@ class HDSoulCube : HDWeapon
 	const MinFrag = 5;
 	const MaxRange = 512;
 	bool Active;
-	bool HasAnnounced[2];
-	int ArchHuntMessageTimer;
+	bool HasAnnounced[3];
 	int PickupTimer;
 	int ShootTicker;
 	int MaxFragTicker;
@@ -497,14 +498,10 @@ class HDSoulCube : HDWeapon
 						{
 							if (hdsc_archermode)
 							{
-								if (invoker.ArchHuntMessageTimer <= 0)
+								if (!invoker.HasAnnounced[2])
 								{
-									invoker.ArchHuntMessageTimer = 35 * 8;
+									invoker.HasAnnounced[2] = true;
 									A_PlayArcherSound(invoker.master, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
-								}
-								else
-								{
-									invoker.ArchHuntMessageTimer--;
 								}
 							}
 							Necro.tics -= 5;
