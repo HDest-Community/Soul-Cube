@@ -487,7 +487,7 @@ class HDSoulCube : HDWeapon
 					while (Iterator.Next())
 					{
 						Actor a = Iterator.thing;
-						if (Distance3D(a) > MaxRange || a.bFRIENDLY || a.Health <= 0 || !CheckSight(a))
+						if (Distance3D(a) > MaxRange || a.Health <= 0 || !CheckSight(a))
 						{
 							continue;
 						}
@@ -510,7 +510,7 @@ class HDSoulCube : HDWeapon
 							Necro.tics -= 5;
 						}
 
-						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE)
+						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && a.bFRIENDLY)
 						{
 							for (int i = 0; i < 2; ++i)
 							{
@@ -522,7 +522,7 @@ class HDSoulCube : HDWeapon
 							continue;
 						}
 
-						if (Iterator.thing is 'HDPlayerPawn' && CheckSight(Iterator.thing))
+						if (Iterator.thing is 'HDPlayerPawn')
 						{
 							PlayerList.Push(HDPlayerPawn(Iterator.thing));
 						}
