@@ -114,6 +114,7 @@ SC/Archer/UseNormal4 SCUSE04
 SC/Archer/UseNormal5 SCUSE05
 SC/Archer/UseNormal6 SCUSE06
 SC/Archer/UseNormal7 SCUSE07
+SC/Archer/UseNormal8 SCUSE08
 
 $random SC/Archer/UseNormal
 {
@@ -124,6 +125,7 @@ $random SC/Archer/UseNormal
 	SC/Archer/UseNormal5
 	SC/Archer/UseNormal6
 	SC/Archer/UseNormal7
+	SC/Archer/UseNormal8
 }
 
 SC/Archer/UseRare1 SCUSE11
@@ -212,7 +214,7 @@ $random SC/Archer/PowerDownRare
 	SC/Archer/PowerDownRare1
 }
 
-// ---------------MISCELLANEOUS ---------------
+// --------------- MAXED OUT ---------------
 
 SC/Archer/MaxedOut1 SCMAXED1
 SC/Archer/MaxedOut2 SCMAXED2
@@ -221,4 +223,24 @@ $random SC/Archer/MaxedOut
 {
 	SC/Archer/MaxedOut1
 	SC/Archer/MaxedOut2
+}
+
+// --------------- ARCHVILE HUNT ---------------
+
+SC/Archer/ArchHuntNormal1 SCARHN01
+SC/Archer/ArchHuntNormal2 SCARHN02
+SC/Archer/ArchHuntNormal3 SCARHN03
+
+$random SC/Archer/ArchHuntNormal
+{
+	SC/Archer/ArchHuntNormal1
+	SC/Archer/ArchHuntNormal2
+	SC/Archer/ArchHuntNormal3
+}
+
+SC/Archer/ArchHuntRare1 SCARHN11
+
+$random SC/Archer/ArchHuntRare
+{
+	SC/Archer/ArchHuntRare1
 }

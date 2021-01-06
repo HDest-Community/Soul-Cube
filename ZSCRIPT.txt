@@ -264,7 +264,7 @@ class HDSoulCube : HDWeapon
 					A_GainExperience(IsSuperShard ? 3 : 1);
 					Iterator.thing.Destroy();
 
-					if (!HasAnnouncedReady && WeaponStatus[SCProp_Frag] >= MinFrag)
+					if (!HasAnnounced[0] && WeaponStatus[SCProp_Frag] >= MinFrag)
 					{
 						if (hdsc_archermode)
 						{
@@ -274,16 +274,16 @@ class HDSoulCube : HDWeapon
 						{
 							owner.A_StartSound("SC/Original/Ready", 10, CHANF_LOCAL, volume: 0.40);
 						}
-						HasAnnouncedReady = true;
+						HasAnnounced[0] = true;
 					}
 
-					if (!HasAnnouncedFull && WeaponStatus[SCProp_Frag] >= MaxFrag && hdsc_archermode)
+					if (!HasAnnounced[1] && WeaponStatus[SCProp_Frag] >= MaxFrag && hdsc_archermode)
 					{
 						if (!random(0, 1))
 						{
 							A_PlayArcherSound(owner, !random(0, 12) ? "FullRare" : "FullNormal");
 						}
-						HasAnnouncedFull = true;
+						HasAnnounced[1] = true;
 					}
 
 					break;
@@ -391,8 +391,8 @@ class HDSoulCube : HDWeapon
 	const MinFrag = 5;
 	const MaxRange = 512;
 	bool Active;
-	bool HasAnnouncedReady;
-	bool HasAnnouncedFull;
+	bool HasAnnounced[2];
+	int ArchHuntMessageTimer;
 	int PickupTimer;
 	int ShootTicker;
 	int MaxFragTicker;
@@ -493,9 +493,21 @@ class HDSoulCube : HDWeapon
 						}
 
 						let Necro = Necromancer(a);
-						if (Necro && Necro.tics > 200 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
+						if (Necro && Necro.tics > 105 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
 						{
-							Necro.tics -= 3;
+							if (hdsc_archermode)
+							{
+								if (invoker.ArchHuntMessageTimer <= 0)
+								{
+									invoker.ArchHuntMessageTimer = 35 * 8;
+									A_PlayArcherSound(invoker.master, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
+								}
+								else
+								{
+									invoker.ArchHuntMessageTimer--;
+								}
+							}
+							Necro.tics -= 5;
 						}
 
 						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE)
@@ -550,11 +562,11 @@ class HDSoulCube : HDWeapon
 							invoker.WeaponStatus[SCProp_Frag]--;
 							if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
 							{
-								invoker.HasAnnouncedReady = false;
+								invoker.HasAnnounced[0] = false;
 							}
 							if (invoker.WeaponStatus[SCProp_Frag] < invoker.GetMaxFrag())
 							{
-								invoker.HasAnnouncedFull = false;
+								invoker.HasAnnounced[1] = false;
 							}
 
 							for (int i = 0; i < HitThingCount; ++i)
@@ -672,7 +684,7 @@ class HDSoulCube : HDWeapon
 								invoker.WeaponStatus[SCProp_Frag] -= 20;
 								if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
 								{
-									invoker.HasAnnouncedReady = false;
+									invoker.HasAnnounced[0] = false;
 								}
 								A_GainExperience(20);
 							}
