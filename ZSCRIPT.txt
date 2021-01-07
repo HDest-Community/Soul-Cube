@@ -1,6 +1,6 @@
 version "4.0"
 
-class SuperStimHandler : StaticEventHandler
+class SoulCubeHandler : StaticEventHandler
 {
 	override void CheckReplacement(ReplaceEvent e)
 	{
@@ -11,357 +11,719 @@ class SuperStimHandler : StaticEventHandler
 
 		switch (e.Replacement.GetClassName())
 		{
-			case 'PortableHealingItem':
-				if (random[superstimrand]() <= 10)
+			case 'Lumberjack':
+				if (random[cuberand]() <= 64)
 				{
-					e.Replacement = "PortableSuperStimpack";
+					e.Replacement = "HDSoulCube";
 				}
 				break;
 		}
 	}
 }
 
-class PortableSuperStimpack : PortableStimpack
+class HDSoulCube : HDWeapon
 {
+	enum SCFlags
+	{
+		SCF_AlreadyPickedUp = 1
+	}
+
+	enum SCProperty
+	{
+		SCProp_Flags,
+		SCProp_UseOffset,
+		SCProp_Frag,
+		SCProp_CubeLevel,
+		SCProp_CubeExperience
+	}
+
+	action void A_AddOffset(int ofs)
+	{
+		invoker.WeaponStatus[SCProp_UseOffset] += ofs;
+	}
+
+	override Inventory CreateTossable(int amt)
+	{
+		if (owner)
+		{
+			owner.A_SelectWeapon("HDFist");
+		}
+
+		return Super.CreateTossable(amt);
+	}
+
+	override string, double GetPickupSprite() { return "SLCBA3A7", 0.5; }
+	override string GetHelpText()
+	{
+		string BaseString = WEPHELP_FIRE.."  Attack";
+		if (WeaponStatus[SCProp_CubeLevel] > 0)
+		{
+			BaseString = BaseString.."\n"..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor";
+		}
+		return BaseString;
+	}
+	override double WeaponBulk() { return 80 * Amount; }
+
+	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
+	{
+		vector2 bob = hpl.hudbob * 0.3;
+		int Offset = WeaponStatus[SCProp_UseOffset];
+		bob.y += Offset;
+		int BaseYOffset = -170;
+		
+		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
+		BaseYOffset += 50;
+		if (WeaponStatus[SCProp_Frag] >= MinFrag)
+		{
+			sb.DrawString(sb.pSmallFont, "Use us", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GREEN);
+		}
+		else
+		{
+			sb.DrawString(sb.pSmallFont, "Not enough frag", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER, Font.CR_GOLD);
+		}
+		BaseYOffset += 10;
+
+		// [Ace] Aggro.
+		string AggroString = "\c[SC_AggroNone]Your soul is unharmed\c-";
+		if (hpl.aggravateddamage > 0)
+		{
+			if (hpl.aggravateddamage <= 20)
+			{
+				AggroString = "\c[SC_AggroVLow]Your soul is weakening\c-";
+			}
+			else if (hpl.aggravateddamage <= 40)
+			{
+				AggroString = "\c[SC_AggroLow]Your soul needs healing\c-";
+			}
+			else if (hpl.aggravateddamage <= 60)
+			{
+				AggroString = "\c[SC_AggroMed]Your soul has been burnt\c-";
+			}
+			else if (hpl.aggravateddamage <= 80)
+			{
+				AggroString = "\c[SC_AggroHigh]Your soul is nearly torn apart\c-";
+			}
+			else
+			{
+				AggroString = "\c[SC_AggroUlt]Your soul has been utterly scorched\c-";
+			}
+		}
+		sb.DrawString(sb.pSmallFont, AggroString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
+
+		// [Ace] Blues.
+		string BluesString = "\c[White]We detect nothing supernatural in you\c-";
+		if (hpl.regenblues > 0)
+		{
+			if (hpl.regenblues <= 72)
+			{
+				BluesString = "\c[SC_BluesVLow]A faint supernatural presence can be felt\c-";
+			}
+			else if (hpl.regenblues <= 144)
+			{
+				BluesString = "\c[SC_BluesLow]There is something supernatural in you\c-";
+			}
+			else if (hpl.regenblues <= 777)
+			{
+				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura\c-";
+			}
+			else if (hpl.regenblues <= 1554)
+			{
+				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
+			}
+			else
+			{
+				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
+			}
+		}
+		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
+
+		// [Ace] Spiritual armor.
+		string ProtectionString = "\c[Red]You are not protected\c-";
+		switch (sb.GetAmount("SpiritualArmour"))
+		{
+			case 1: ProtectionString = "\c[Orange]You are protected by a thin veil\c-"; break;
+			case 2: ProtectionString = "\c[Yellow]The spirits guard your soul\c-"; break;
+			case 3: ProtectionString = "\c[Green]Your soul has transcended beyond harm\c-"; break;
+		}
+		sb.DrawString(sb.pSmallFont, ProtectionString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
+		BaseYOffset += 10;
+	}
+
+	override int GetSbarNum(int flags)
+	{
+		let HDHud = HDStatusBar(StatusBar);
+
+		int Frag =  WeaponStatus[SCProp_Frag];
+		HDHud.SavedColour = Frag >= MinFrag ? Font.CR_GREEN : Font.CR_RED;
+		return Frag;
+	}
+
+	override int DisplayAmount()
+	{
+		let HDHud = HDStatusBar(StatusBar);
+
+		int Level = WeaponStatus[SCProp_CubeLevel];
+		int Col = Font.FindFontColor("SC_Level_1");
+		switch (Level)
+		{
+			case 1: Col = Font.FindFontColor("SC_Level_2"); break;
+			case 2: Col = Font.CR_YELLOW; break;
+			case 3: Col = Font.CR_ORANGE; break;
+			case 4: Col = Font.CR_RED; break;
+		}
+		HDHud.SavedColour = Col;
+		return WeaponStatus[SCProp_CubeLevel];
+	}
+
+	override bool AddSpareWeapon(actor newowner)
+	{
+		// [Ace] This pointer is for the existing cube in the player's inventory.
+		let Cube = HDSoulCube(newowner.FindInventory("HDSoulCube"));
+		if (Cube)
+		{
+			if (self != Cube)
+			{
+				A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+				if (hdsc_archermode)
+				{
+					A_PlayArcherSound(newowner, "ConsumeNormal");
+				}
+				Cube.A_GainExperience(200);
+				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
+				Destroy();
+			}
+		}
+		return false;
+	}
+
+	override void LoadoutConfigure(string input)
+	{
+		int StartLevel = GetLoadoutVar(input, "level", 1);
+		if (StartLevel > 0)
+		{
+			WeaponStatus[SCProp_CubeLevel] = min(StartLevel, ExperienceReqs.Size());
+		}
+
+		int StartFrag = GetLoadoutVar(input, "frag", 3);
+		if (StartFrag > 0)
+		{
+			WeaponStatus[SCProp_Frag] = StartFrag;
+		}
+	}
+
+	override bool OnGrab(Actor other)
+	{
+		if (Active && PickupTimer <= 0)
+		{
+			PickupTimer = 10;
+			return false;
+		}
+
+		if (Destination)
+		{
+			Destination.Destroy();
+		}
+
+		Active = false;
+		bNOGRAVITY = false;
+
+		if (hdsc_archermode)
+		{
+			if (!random(0, 5) && !(WeaponStatus[SCProp_Flags] & SCF_AlreadyPickedUp))
+			{
+				A_PlayArcherSound(other, "PickupSpecial");
+			}
+			else
+			{
+				A_PlayArcherSound(other, !random(0, 28) ? "PickupRare" : "PickupNormal");
+			}
+			WeaponStatus[SCProp_Flags] |= SCF_AlreadyPickedUp;
+		}
+
+		HasAnnounced[2] = false;
+
+		return Super.OnGrab(other);
+	}
+
+	override void DoEffect()
+	{
+		int MaxFrag = GetMaxFrag();
+		if (WeaponStatus[SCProp_Frag] < MaxFrag && level.time % int(105 - 17.5 * WeaponStatus[SCProp_CubeLevel]) == 0 && !random(0, 1))
+		{
+			// [Ace] This is actually a square but it's invisible so who cares?
+			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
+			while (Iterator.Next())
+			{
+				bool IsSuperShard = Iterator.thing is 'NecroGhostShard';
+				bool IsRegularShard = Iterator.thing is 'BFGNecroShard';
+
+				if (IsRegularShard || IsSuperShard && !random(0, 2))
+				{
+					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
+					WeaponStatus[SCProp_Frag] += IsSuperShard ? 3 : 1;
+					A_GainExperience(IsSuperShard ? 3 : 1);
+					Iterator.thing.Destroy();
+
+					if (!HasAnnounced[0] && WeaponStatus[SCProp_Frag] >= MinFrag)
+					{
+						if (hdsc_archermode)
+						{
+							A_PlayArcherSound(owner, "Ready", 0.5, true);
+						}
+						else
+						{
+							owner.A_StartSound("SC/Original/Ready", 10, CHANF_LOCAL, volume: 0.40);
+						}
+						HasAnnounced[0] = true;
+					}
+
+					if (!HasAnnounced[1] && WeaponStatus[SCProp_Frag] >= MaxFrag && hdsc_archermode)
+					{
+						if (!random(0, 1))
+						{
+							A_PlayArcherSound(owner, !random(0, 12) ? "FullRare" : "FullNormal");
+						}
+						HasAnnounced[1] = true;
+					}
+
+					break;
+				}
+			}
+		}
+		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 5))
+		{
+			A_PlayArcherSound(owner, "MaxedOut", local: true);
+			MaxFragTicker = 0;
+		}
+
+		let plr = HDPlayerPawn(owner);
+		if (!Active && WeaponStatus[SCProp_Frag] >= MinFrag && plr && plr.incapacitated > 0)
+		{
+			A_DeployCube(false, true);
+		}
+
+		Super.DoEffect();
+	}
+
+	override string PickupMessage()
+	{
+		string BaseMessage = "Picked up the soul cube.";
+		if (hdsc_archermode)
+		{
+			BaseMessage = BaseMessage.." You hear strange voices coming out of it. It is... speaking to you?";
+		}
+		if (!random(0, 32))
+		{
+			BaseMessage.."\nEternal blues and spiritual armor will come to you if you say \"thank you cuob\".";
+		}
+		return BaseMessage;
+	}
+
+	private action void A_DeployCube(bool anchor, bool fromIncap)
+	{
+		let plr = invoker.owner;
+		invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
+		if (anchor)
+		{
+			Actor a = AimTarget();
+			if (a && Distance3D(a) <= MaxRange)
+			{
+				invoker.Destination.master = a;
+				invoker.master = plr;
+			}
+			else
+			{
+				SetWeaponState("Nope");
+				return;
+			}
+		}
+		else
+		{
+			invoker.Destination.master = invoker.owner;
+		}
+
+		invoker.master = plr;
+		plr.DropInventory(invoker);
+		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+		if (!fromIncap && hdsc_archermode)
+		{
+			A_PlayArcherSound(plr, !random(0, 20) ? "UseRare" : "UseNormal");
+		}
+		invoker.Active = true;
+		invoker.bNOGRAVITY = true;
+	}
+
+	private action void A_GainExperience(int amount)
+	{
+		let plr = invoker.owner ? invoker.owner : invoker.master;
+		int CubeLevel = invoker.WeaponStatus[SCProp_CubeLevel];
+		if (CubeLevel >= invoker.ExperienceReqs.Size())
+		{
+			return;
+		}
+
+		invoker.WeaponStatus[SCProp_CubeExperience] += amount;
+		if (invoker.WeaponStatus[SCProp_CubeExperience] >= invoker.ExperienceReqs[CubeLevel])
+		{
+			invoker.WeaponStatus[SCProp_CubeExperience] -= invoker.ExperienceReqs[CubeLevel];
+			invoker.WeaponStatus[SCProp_CubeLevel]++;
+			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+			if (hdsc_archermode)
+			{
+				A_PlayArcherSound(plr, "LevelUp", local: true);
+			}
+			plr.A_Log("The cube's power grows.", true);
+		}
+	}
+
+	private clearscope int GetMaxFrag()
+	{
+		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
+	}
+
+	static void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
+	{
+		a.A_StopSound(10);
+		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
+	}
+
+	static const int ExperienceReqs[] = { 200, 500, 1000, 1500 };
+	const MinFrag = 5;
+	const MaxRange = 512;
+	bool Active;
+	bool HasAnnounced[3];
+	int PickupTimer;
+	int ShootTicker;
+	int MaxFragTicker;
+	CubeDestination Destination;
+
 	Default
 	{
-		Inventory.PickupMessage "Picked up a super stimpack.";
-		Inventory.icon "SSTMA0";
-		Tag "Super stimpack";
-		HDPickup.RefId "sst";
-		HDInjectorMaker.InjectorType "HDSuperStimpacker";
+		Speed 5;
+		Height 15;
+		+SLIDESONWALLS
+		+INVENTORY.INVBAR
+		+HDWEAPON.DONTFISTONDROP
+		Inventory.PickupSound "misc/w_pkup";
+		Scale 0.5;
+		HDWeapon.RefId "slc";
+		Tag "Soul Cube";
 	}
-	
+
 	States
 	{
 		Spawn:
-			SSTM A -1;
-			Stop;
-	}
-}
+			SLCB A 1
+			{
+				invoker.PickupTimer--;
+				if (invoker.Active)
+				{
+					invoker.Angle += 10;
+					int CubeLevel = invoker.WeaponStatus[SCProp_CubeLevel];
 
-class HDSuperStimpacker : HDStimpacker
-{
-	override Inventory CreateTossable(int amount)
-	{
-		HDWoundFixer.DropMeds(owner, 0);
-		return null;
-	}
-	override string, double GetPickupSprite() { return "SSTMA0", 1; }
-	override string GetHelpText() { return WEPHELP_INJECTOR; }
-	
-	Default
-	{
-		Tag "Super stimpack";
-		HDStimpacker.InjectType "InjectSuperStimDummy";
-		HDStimpacker.SpentInjectType "SpentSuperStim";
-		HDStimpacker.InventoryType "PortableSuperStimpack";
-		HDStimpacker.NoError "No super stimpacks.";
-		HDWoundFixer.InjectorIcon "SSTMA0";
-		HDWoundFixer.InjectorType "PortableSuperStimpack";
-	}
+					// [Ace] Move towards owner.
+					double OldAngle = invoker.Angle;
+					if (invoker.Destination)
+					{
+						if (invoker.Distance2D(invoker.Destination) > 40 || abs(invoker.pos.z - invoker.Destination.pos.z) > 20)
+						{
+							vector3 diff = level.Vec3Diff(invoker.pos, invoker.Destination.pos);
+							double PitchToDest = atan2(diff.z, diff.xy.length());
 
-	States
-	{
-		Spawn:
-			TNT1 A 1;
-			Stop;
-		Select:
-			TNT1 A 0
-			{
-				bool HelpText = GetCVar("hd_helptext");
-				if (!CheckInventory(invoker.InventoryType, 1))
-				{
-					if (HelpText)
-					{
-						A_WeaponMessage(invoker.NoError);
-					}
-					A_SelectWeapon("HDFist");
-				}
-				else if (HelpText)
-				{
-					A_WeaponMessage("\cd<<< \cjSUPER STIMPACK \cd>>>\c-\n\n\nSuper stimpacks give a rapid\nbut short boost to\nhealth regeneration.\n\n\Press altfire to use on someone else.\n\n\cgDO NOT OVERDOSE.");
-				}
-			}
-			goto HDWoundFixer::Select;
-		DeselectHold:
-			TNT1 A 1;
-			TNT1 A 0 A_Refire("DeselectHold");
-			TNT1 A 0
-			{
-				A_SelectWeapon("HDFist");
-				A_WeaponReady(WRF_NOFIRE);
-			}
-			Goto Nope;
-		Fire:
-		Hold:
-			TNT1 A 1;
-			TNT1 A 0
-			{
-				bool HelpText = GetCVar("hd_helptext");
-				if (!CheckInventory(invoker.InventoryType, 1))
-				{
-					if (HelpText)
-					{
-						A_WeaponMessage(invoker.NoError);
-					}
-					A_Refire("DeselectHold");
-				}
-				else if (CheckInventory("PortableRadsuit", 1) && CheckInventory("WornRadsuit", 1))
-				{
-					if (HelpText)
-					{
-						A_WeaponMessage("Take off your environment suit first!", 2);
-					}
-					A_Refire("Nope");
-				}
-				else if (pitch <55)
-				{
-					A_SetPitch(pitch + 8, SPF_INTERPOLATE);
-					A_Refire();
-				}
-				else
-				{
-					A_Refire("Inject");
-				}
-			}
-			Goto Nope;
-		Inject:
-			TNT1 A 1
-			{
-				A_TakeInjector(invoker.InventoryType);
-				A_SetBlend("7a 3a 18", 0.1, 4);
-				A_SetPitch(pitch + 2, SPF_INTERPOLATE);
-				if (HDPlayerPawn(self))
-				{
-					A_StartSound(HDPlayerPawn(self).medsound, CHAN_VOICE);
-				}
-				else
-				{
-					A_StartSound("*usemeds",CHAN_VOICE);
-				}
-				A_StartSound("misc/bulletflesh", CHAN_WEAPON);
-				Actor a = Spawn(invoker.InjectType, pos, ALLOW_REPLACE);
-				a.target = self;
-			}
-			TNT1 AAAA 1 A_SetPitch(pitch - 0.5, SPF_INTERPOLATE);
-			TNT1 A 6;
-			TNT1 A 0
-			{
-				Actor a = Spawn(invoker.SpentInjectType, pos + (0, 0, height - 8), ALLOW_REPLACE);
-				a.angle = angle;
-				a.vel = vel;
-				a.A_ChangeVelocity(3, 1, 2, CVF_RELATIVE);
-				a.A_StartSound("weapons/grenopen", 8);
-			}
-			Goto InjectedHold;
-		AltFire:
-			TNT1 A 10;
-			TNT1 A 0 A_Refire();
-			Goto Nope;
-		AltHold:
-			TNT1 A 0
-			{
-				if (!CheckInventory(invoker.InventoryType, 1))
-				{
-					if (GetCVar("hd_helptext"))
-					{
-						A_WeaponMessage(invoker.NoError);
-					}
-					A_Refire("DeselectHold");
-				}
-			}
-			TNT1 A 8
-			{
-				bool HelpText = GetCVar("hd_helptext");
-				FLineTraceData InjectorData;
-				LineTrace(angle, 42, pitch, offsetz: height - 12, data: InjectorData);
-				let plr = HDPlayerPawn(InjectorData.HitActor);
-				if (!plr)
-				{
-					let mon = HDMobMan(InjectorData.HitActor);
-					if (mon && invoker.GetClassName() == "HDSuperStimpacker")
-					{
-						if (mon.Stunned < 100 || mon.Health < 10)
-						{
-							if (HelpText)
-							{
-								A_WeaponMessage("They don't need it.", 2);
-							}
-							return ResolveState("Nope");
+							A_Face(invoker.Destination, 180, 45);
+							A_ChangeVelocity(1.0 * cos(PitchToDest), 0, 1.0 * sin(PitchToDest), CVF_RELATIVE);
+							vel.x = clamp(vel.x, -6, 6);
+							vel.y = clamp(vel.y, -6, 6);
+							vel.z = clamp(vel.z, -6, 6);
 						}
-						A_TakeInjector(invoker.InventoryType);
-						mon.A_StartSound(mon.painsound, CHAN_VOICE);
-						mon.Stunned = max(0, mon.stunned >> 1);
-						mon.GiveBody(-30);
-						if (!CheckInventory(invoker.InventoryType, 1))
+						else
 						{
-							return ResolveState("DeselectHold");
-						}
-						return ResolveState("Injected");
-					}
-					if (HelpText)
-					{
-						A_WeaponMessage("Nothing to be done here.\n\nStimulate thyself? (press fire)", 2);
-					}
-					return ResolveState("Nope");
-				}
-				else if (plr.CheckInventory("WornRadsuit", 1))
-				{
-					if (HelpText)
-					{
-						A_WeaponMessage("You'll need them to take off their environment suit...");
-					}
-					return ResolveState("Nope");
-				}
-				else if (plr.CheckInventory("IsMoving", 5))
-				{
-					bool PlrHelpText = plr.GetCVar("hd_helptext");
-					if (plr.stimcount > 0)
-					{
-						if (PlrHelpText)
-						{
-							plr.A_Print(String.Format("Run away!!!\n\n%s is trying to overdose you\n\n(and possibly bugger you)...", player.GetUsername()));
-						}
-						if (HelpText)
-						{
-							A_WeaponMessage("They seem a bit fidgety...");
+							A_ScaleVelocity(0.9);
 						}
 					}
 					else
 					{
-						if (PlrHelpText)
+						A_ScaleVelocity(0.9);
+					}
+
+					Color PartCol;
+					switch (CubeLevel)
+					{
+						case 0: PartCol = 0x44FF44; break;
+						case 1: PartCol = 0x99FF11; break;
+						case 2: PartCol = 0xFFFF11; break;
+						case 3: PartCol = 0xFF9911; break;
+						case 4: PartCol = 0xFF1111; break;
+					}
+
+					// [Ace] Draw range circle.
+					for (double i = 0; i < 360; i += 0.75)
+					{
+						A_SpawnParticle(PartCol, SPF_RELPOS | SPF_FULLBRIGHT, 1, 40, i, MaxRange, 0, -(pos.z - floorz), startalphaf: 0.25);
+					}
+
+					// [Ace] Drop down when out of charges.
+					if (invoker.WeaponStatus[SCProp_Frag] < 1)
+					{
+						invoker.bNOGRAVITY = false;
+						invoker.Active = false;
+						if (invoker.tracer)
 						{
-							plr.A_Print(String.Format("Stop squirming!\n\n%s only wants to\n\ngive you some drugs...", player.GetUsername()));
+							invoker.tracer.Destroy();
 						}
-						if (HelpText)
+
+						if (hdsc_archermode)
 						{
-							A_WeaponMessage("You'll need them to stay still...");
+							A_PlayArcherSound(invoker.master, !random(0, 6) ? "PowerDownRare" : "PowerDownNormal");
 						}
 					}
-					return ResolveState("Nope");
-				}
-				else if ((teamplay || !deathmatch) && ((invoker.InjectType == "InjectSuperStimDummy" && plr.stimcount > 0) || (invoker.InjectType == "InjectZerkDummy" && plr.zerk > 0)))
-				{
-					if (plr.GetCVar("hd_helptext"))
+
+					// [Ace] Target locator.
+					Array<Actor> TargetList;
+					Array<HDPlayerPawn> PlayerList;
+					int HitThingCount = 0;
+					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
+					while (Iterator.Next())
 					{
-						plr.A_Print(String.Format("Run away!!!\n\n%s is trying to overdose you\n\n(and possibly bugger you)...", player.GetUsername()));
+						Actor a = Iterator.thing;
+						if (Distance3D(a) > MaxRange || a.Health <= 0 || !CheckSight(a))
+						{
+							continue;
+						}
+
+						let Necro = Necromancer(a);
+						if (Necro && Necro.tics > 105 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
+						{
+							if (hdsc_archermode)
+							{
+								if (!invoker.HasAnnounced[2])
+								{
+									invoker.HasAnnounced[2] = true;
+									A_PlayArcherSound(invoker.master, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
+								}
+							}
+							Necro.tics -= 5;
+						}
+
+						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY)
+						{
+							for (int i = 0; i < 2; ++i)
+							{
+								a.A_SpawnParticle(PartCol, 0, 25, random(2, 5), 0, frandom(-a.Radius, a.Radius), frandom(-a.Radius, a.Radius), frandom(0, a.Height), 0, 0, random(3, 6));
+							}
+
+							TargetList.Push(a);
+							HitThingCount = TargetList.Size();
+							continue;
+						}
+
+						if (Iterator.thing is 'HDPlayerPawn')
+						{
+							PlayerList.Push(HDPlayerPawn(Iterator.thing));
+						}
 					}
-					if (GetCVar("hd_helptext"))
+
+					// [Ace] Fire, incap, and regeneration.
+					for (int i = 0; i < PlayerList.Size(); ++i)
 					{
-						A_WeaponMessage("They seem a bit fidgety already...");
+						let plr = PlayerList[i];
+						
+						plr.A_GiveInventory("HDFireDouse", 20);
+						if (CubeLevel >= 1)
+						{
+							if (plr.incaptimer > 0)
+							{
+								plr.incaptimer = max(plr.incaptimer - CubeLevel, 0);
+							}
+							bool HasBlues = plr.regenblues > 0;
+							if (plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (CubeLevel - 1) - (HasBlues ? 35 : 0)) == 0)
+							{
+								if (HasBlues)
+								{
+									plr.regenblues--;
+								}
+								plr.A_GiveInventory("Health", 1);
+								A_GainExperience(1);
+							}
+						}
 					}
-					return ResolveState("Nope");
-				}
-				else
-				{
-					A_TakeInjector(invoker.InventoryType);
-					plr.A_StartSound(HDPlayerPawn(plr).medsound, CHAN_VOICE);
-					plr.A_SetBlend("7a 3a 18", 0.1, 4);
-					Actor a = Spawn(invoker.InjectType, plr.pos, ALLOW_REPLACE);
-					a.target = plr;
-					if (!CheckInventory(invoker.InventoryType, 1))
+
+					// [Ace] Attack stuff.
+					if (HitThingCount > 0)
 					{
-						return ResolveState("DeselectHold");
+						if (++invoker.ShootTicker >= 35 - 5 * CubeLevel)
+						{
+							invoker.ShootTicker = 0;
+							invoker.WeaponStatus[SCProp_Frag]--;
+							if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+							{
+								invoker.HasAnnounced[0] = false;
+							}
+							if (invoker.WeaponStatus[SCProp_Frag] < invoker.GetMaxFrag())
+							{
+								invoker.HasAnnounced[1] = false;
+							}
+
+							for (int i = 0; i < HitThingCount; ++i)
+							{
+								if (TargetList[i])
+								{
+									TargetList[i].DamageMobj(invoker.master, invoker.master, 150 + 25 * CubeLevel, 'Holy', DMG_THRUSTLESS);
+									for (int j = 0; j < 80; ++j)
+									{
+										TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
+									}
+									A_GainExperience(1); // [Ace] Per enemy hit.
+								}
+							}
+
+							for (int i = 0; i < PlayerList.Size(); ++i)
+							{
+								let plr = PlayerList[i];
+
+								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
+								if (Battery)
+								{
+									// [Ace] Find the highest battery that's not full.
+									int MinCharge = 0, LastIndex = -1; 
+									for (int i = 0; i < Battery.Mags.Size(); ++i)
+									{
+										if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
+										{
+											MinCharge = Battery.Mags[i];
+											LastIndex = i;
+										}
+									}
+									
+									if (LastIndex > -1)
+									{
+										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + HitThingCount, Battery.MaxPerUnit);
+									}
+									else // [Ace] Batteries were full.
+									{
+										plr.regenblues += 4 * HitThingCount;
+									}
+								}
+								else
+								{
+									plr.regenblues += 4 * HitThingCount;
+								}
+							}
+						}
 					}
-					return ResolveState("Injected");
+					else
+					{
+						invoker.ShootTicker = 0;
+					}
 				}
 			}
-		Injected:
-			TNT1 A 0
-			{
-				Actor a = Spawn(invoker.SpentInjectType, pos + (0, 0, height - 8), ALLOW_REPLACE);
-				a.angle = angle;
-				a.vel = vel;
-				a.A_ChangeVelocity(-2, 1, 4, CVF_RELATIVE);
-				A_StartSound("weapons/grenopen", CHAN_VOICE);
-			}
-		InjectedHold:
-			TNT1 A 1 A_ClearRefire();
-			TNT1 A 0 A_JumpIf(PressingFire(), "InjectedHold");
-			TNT1 A 10 A_SelectWeapon("HDFist");
-			TNT1 A 1 A_WeaponReady(WRF_NOFIRE);
-			Goto ReadyEnd;
-	}
-}
-
-class InjectSuperStimDummy : InjectStimDummy
-{
-	Default
-	{
-		Accuracy 70;
-	}
-
-	States
-	{
-		Spawn:
-			TNT1 A 6 nodelay
-			{
-				tg = HDPlayerPawn(target);
-				if (!tg || tg.bKILLED)
-				{
-					Destroy();
-					return;
-				}
-
-				tg.aggravateddamage += random(1, 2);
-				if (tg.zerk > 0)
-				{
-					tg.aggravateddamage + random(2, 4);
-				}
-			}
+			Loop;
+		Select:
+			TNT1 A 0 A_AddOffset(100);
+			Goto Super::Select;
+		Ready:
 			TNT1 A 1
 			{
-				if (target.bKILLED || Accuracy < 1)
+				if (PressingUser3())
 				{
-					Destroy();
+					A_MagManager("PickupManager");
 					return;
 				}
 
-				if (Accuracy % 2 == 0)
+				int off = invoker.WeaponStatus[SCProp_UseOffset];
+				if (off > 0)
 				{
-					// [Ace] Standard dosage.
-					if (Accuracy > default.Accuracy - 40)
-					{
-						tg.stimcount++;
-						tg.fatigue += 2;
-					}
-					tg.GiveBody(randompick(1, 1, 2));
-
-					// [Ace] Overdose if you try to overregenerate.
-					if (tg.Health >= 85)
-					{
-						tg.stimcount++;
-						tg.fatigue += 3;
-					}
+					invoker.WeaponStatus[SCProp_UseOffset] = off * 2 / 3;
 				}
-				Accuracy--;
+
+				if (PressingFire() || PressingAltfire())
+				{
+					SetWeaponState("Lower");
+					return;
+				}
+
+				A_WeaponReady(WRF_ALLOWUSER3 | WRF_NOFIRE);
+			}
+			Goto ReadyEnd;
+		Lower:
+			TNT1 AA 1 A_AddOffset(6);
+			TNT1 AAAA 1 A_AddOffset(18);
+			TNT1 AAAAA 1 A_AddOffset(36);
+			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltfire(), "Ready");
+			TNT1 A 1
+			{
+				if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+
+				if (PressingFire() || PressingAltfire())
+				{
+					if (PressingFiremode() && CountInv("SpiritualArmour") < min(3, invoker.WeaponStatus[SCProp_CubeLevel]) && invoker.WeaponStatus[SCProp_Frag] >= 20)
+					{
+						invoker.WeaponStatus[SCProp_Frag] -= 20;
+						if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+						{
+							invoker.HasAnnounced[0] = false;
+						}
+
+						let PlayerIterator = BlockThingsIterator.Create(self, MaxRange);
+						while (PlayerIterator.Next())
+						{
+							let SpiritTarget = HDPlayerPawn(PlayerIterator.thing);
+							if (SpiritTarget && (SpiritTarget == self || CheckSight(SpiritTarget)))
+							{
+								for (int i = 0; i < 360; ++i)
+								{
+									if (!random(0, 2))
+									{
+										SpiritTarget.A_SpawnParticle("44FF44", SPF_RELATIVE, random(35, 70), random(2, 4), i, random(8, 42), 0, frandom(0, SpiritTarget.height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+									}
+								}
+								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
+								A_GainExperience(10);
+							}
+						}
+						
+						A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+						if (hdsc_archermode)
+						{
+							A_PlayArcherSound(self, "Praise");
+						}
+						SetWeaponState("Nope");
+						return;
+					}
+					A_DeployCube(PressingAltfire(), false);
+				}
 			}
 			Wait;
 	}
 }
 
-class SpentSuperStim : SpentZerk
+class CubeDestination : Actor
 {
 	Default
 	{
-		Translation "None";
+		+NOINTERACTION
 	}
 
 	States
 	{
 		Spawn:
-			SSYR G 1 A_SetRoll(Roll + 60, SPF_INTERPOLATE);
-			Loop;
-		Death:
-			SSYR G -1
+			TNT1 A 1
 			{
-				Roll = 0;
-				if (!random(0, 1))
+				if (master && master.Health > 0)
 				{
-					Scale.x *= -1;
+					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
+				}
+				else
+				{
+					Destroy();
 				}
 			}
-			Stop;
+			Loop;
 	}
 }
