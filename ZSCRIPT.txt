@@ -504,7 +504,7 @@ class HDSoulCube : HDWeapon
 									A_PlayArcherSound(invoker.master, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
 								}
 							}
-							Necro.tics -= 5;
+							Necro.tics -= 10;
 						}
 
 						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY)
