@@ -664,6 +664,12 @@ class HDSoulCube : HDWeapon
 				{
 					if (PressingFiremode() && CountInv("SpiritualArmour") < min(3, invoker.WeaponStatus[SCProp_CubeLevel]) && invoker.WeaponStatus[SCProp_Frag] >= 20)
 					{
+						invoker.WeaponStatus[SCProp_Frag] -= 20;
+						if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+						{
+							invoker.HasAnnounced[0] = false;
+						}
+
 						let PlayerIterator = BlockThingsIterator.Create(self, MaxRange);
 						while (PlayerIterator.Next())
 						{
@@ -678,12 +684,7 @@ class HDSoulCube : HDWeapon
 									}
 								}
 								SpiritTarget.A_GiveInventory("SpiritualArmour", 1);
-								invoker.WeaponStatus[SCProp_Frag] -= 20;
-								if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
-								{
-									invoker.HasAnnounced[0] = false;
-								}
-								A_GainExperience(20);
+								A_GainExperience(10);
 							}
 						}
 						
