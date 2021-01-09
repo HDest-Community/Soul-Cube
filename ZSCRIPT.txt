@@ -570,7 +570,7 @@ class HDSoulCube : HDWeapon
 							{
 								if (TargetList[i])
 								{
-									TargetList[i].DamageMobj(invoker, invoker, 150 + 25 * CubeLevel, 'Holy', DMG_THRUSTLESS);
+									TargetList[i].DamageMobj(invoker, invoker.master, 150 + 25 * CubeLevel, 'Holy', DMG_THRUSTLESS);
 									for (int j = 0; j < 80; ++j)
 									{
 										TargetList[i].A_SpawnParticle(PartCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
