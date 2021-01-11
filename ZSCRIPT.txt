@@ -327,16 +327,18 @@ class HDSoulCube : HDWeapon
 		invoker.Destination = CubeDestination(Spawn("CubeDestination", pos));
 		if (anchor)
 		{
-			Actor a = AimTarget();
-			if (a && Distance3D(a) <= MaxRange)
+			FLineTraceData TraceData;
+			LineTrace(angle, MaxRange, pitch, TRF_THRUBLOCK | TRF_THRUHITSCAN | TRF_NOSKY | TRF_SOLIDACTORS, height / 2 + 4, 0, 0, TraceData);
+			
+			if (TraceData.HitActor)
 			{
-				invoker.Destination.master = a;
+				invoker.Destination.master = TraceData.HitActor;
 				invoker.master = plr;
 			}
 			else
 			{
-				SetWeaponState("Nope");
-				return;
+				invoker.Destination.SetOrigin(TraceData.HitLocation + (0, 0, 16), false);
+				invoker.master = plr;
 			}
 		}
 		else
@@ -718,10 +720,6 @@ class CubeDestination : Actor
 				if (master && master.Health > 0)
 				{
 					Warp(master, master.radius + 10, -(master.radius + 10), master.height + 4, flags: WARPF_NOCHECKPOSITION);
-				}
-				else
-				{
-					Destroy();
 				}
 			}
 			Loop;
