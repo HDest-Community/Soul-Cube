@@ -55,7 +55,8 @@ class HDSoulCube : HDWeapon
 	override string, double GetPickupSprite() { return "SLCBA3A7", 0.5; }
 	override string GetHelpText()
 	{
-		string BaseString = WEPHELP_FIRE.."  Attack";
+		string BaseString = WEPHELP_FIRE.."  Attack\n"
+		..WEPHELP_ALTFIRE.."  Anchor to something";
 		if (WeaponStatus[SCProp_CubeLevel] > 0)
 		{
 			BaseString = BaseString.."\n"..WEPHELP_FIRE.."+"..WEPHELP_FIREMODE.."  Grant spiritual armor";
