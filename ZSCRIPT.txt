@@ -585,24 +585,13 @@ class HDSoulCube : HDWeapon
 							for (int i = 0; i < PlayerList.Size(); ++i)
 							{
 								let plr = PlayerList[i];
-
-								let Battery = HDMagAmmo(plr.FindInventory("HDBattery"));
+								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
 								{
-									// [Ace] Find the highest battery that's not full.
-									int MinCharge = 0, LastIndex = -1; 
-									for (int i = 0; i < Battery.Mags.Size(); ++i)
+									int Index = AceCore.GetHighestBattery(Battery, Battery.MaxPerUnit);
+									if (Index > -1)
 									{
-										if (Battery.Mags[i] >= MinCharge && Battery.Mags[i] < Battery.MaxPerUnit)
-										{
-											MinCharge = Battery.Mags[i];
-											LastIndex = i;
-										}
-									}
-									
-									if (LastIndex > -1)
-									{
-										Battery.Mags[LastIndex] = min(Battery.Mags[LastIndex] + HitThingCount, Battery.MaxPerUnit);
+										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount, Battery.MaxPerUnit);
 									}
 									else // [Ace] Batteries were full.
 									{
