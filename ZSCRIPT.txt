@@ -19,6 +19,24 @@ class SoulCubeHandler : StaticEventHandler
 				break;
 		}
 	}
+
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		if (e.Name ~== "SC_ReturnToOwner")
+		{
+			let plr = players[e.Player].mo;
+			ThinkerIterator it = ThinkerIterator.Create("HDSoulCube", Thinker.STAT_DEFAULT);
+			HDSoulCube SC;
+			while ((SC = HDSoulCube(it.Next())))
+			{
+				if (SC.master == plr && SC.Destination && SC.CheckSight(SC.master))
+				{
+					SC.Destination.master = plr;
+					return;
+				}
+			}
+		}
+	}
 }
 
 class HDSoulCube : HDWeapon

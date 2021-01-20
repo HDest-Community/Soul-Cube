@@ -1,0 +1,1 @@
+alias SC_ReturnToOwner "netevent SC_ReturnToOwner"

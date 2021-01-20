@@ -8,6 +8,7 @@
 - Configuration codes are:
 	- `frag`: Starting frag.
 	- `level`: Starting level.
+- Type `SC_ReturnToOwner` in the console to force the cube to return to you if you are within sight.
 
 ### How it works
 ---
