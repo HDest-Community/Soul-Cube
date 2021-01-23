@@ -196,27 +196,6 @@ class HDSoulCube : HDWeapon
 		return WeaponStatus[SCProp_CubeLevel];
 	}
 
-	override bool AddSpareWeapon(actor newowner)
-	{
-		// [Ace] This pointer is for the existing cube in the player's inventory.
-		let Cube = HDSoulCube(newowner.FindInventory("HDSoulCube"));
-		if (Cube)
-		{
-			if (self != Cube)
-			{
-				A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
-				if (hdsc_archermode)
-				{
-					A_PlayArcherSound(newowner, "ConsumeNormal");
-				}
-				Cube.A_GainExperience(200);
-				Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
-				Destroy();
-			}
-		}
-		return false;
-	}
-
 	override void LoadoutConfigure(string input)
 	{
 		int StartLevel = GetLoadoutVar(input, "level", 1);
@@ -264,6 +243,26 @@ class HDSoulCube : HDWeapon
 		HasAnnounced[2] = false;
 
 		return Super.OnGrab(other);
+	}
+
+	override void ActualPickup(Actor other)
+	{
+		// [Ace] This pointer is for the existing cube in the player's inventory.
+		let Cube = HDSoulCube(other.FindInventory("HDSoulCube"));
+		if (Cube)
+		{
+			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+			if (hdsc_archermode)
+			{
+				A_PlayArcherSound(other, "ConsumeNormal");
+			}
+			Cube.A_GainExperience(200);
+			Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
+			Destroy();
+			return;
+		}
+		
+		Super.ActualPickup(other);
 	}
 
 	override void DoEffect()
