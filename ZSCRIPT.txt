@@ -527,7 +527,7 @@ class HDSoulCube : HDWeapon
 							Necro.tics -= 10;
 						}
 
-						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY)
+						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY && (HDMobBase(a) ? HDMobBase(a).bodydamage < a.SpawnHealth() * 3 : true))
 						{
 							for (int i = 0; i < 2; ++i)
 							{
