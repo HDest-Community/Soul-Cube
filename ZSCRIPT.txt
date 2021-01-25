@@ -583,6 +583,7 @@ class HDSoulCube : HDWeapon
 							}
 							if (invoker.WeaponStatus[SCProp_Frag] < invoker.GetMaxFrag())
 							{
+								MaxFragTicker = 0;
 								invoker.HasAnnounced[1] = false;
 							}
 
