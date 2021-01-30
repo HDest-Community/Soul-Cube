@@ -1,6 +1,6 @@
 version "4.0"
 
-class SoulCubeHandler : StaticEventHandler
+class SoulCubeHandler : EventHandler
 {
 	override void CheckReplacement(ReplaceEvent e)
 	{
