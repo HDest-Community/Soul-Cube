@@ -245,7 +245,7 @@ class HDSoulCube : HDWeapon
 		return Super.OnGrab(other);
 	}
 
-	override void ActualPickup(Actor other)
+	override void ActualPickup(Actor other, bool silent)
 	{
 		// [Ace] This pointer is for the existing cube in the player's inventory.
 		let Cube = HDSoulCube(other.FindInventory("HDSoulCube"));
@@ -262,7 +262,7 @@ class HDSoulCube : HDWeapon
 			return;
 		}
 		
-		Super.ActualPickup(other);
+		Super.ActualPickup(other, silent);
 	}
 
 	override void DoEffect()
