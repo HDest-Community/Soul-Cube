@@ -59,17 +59,7 @@ class HDSoulCube : HDWeapon
 	{
 		invoker.WeaponStatus[SCProp_UseOffset] += ofs;
 	}
-
-	override Inventory CreateTossable(int amt)
-	{
-		if (owner)
-		{
-			owner.A_SelectWeapon("HDFist");
-		}
-
-		return Super.CreateTossable(amt);
-	}
-
+	
 	override string, double GetPickupSprite() { return "SLCBA3A7", 0.5; }
 	override string GetHelpText()
 	{
