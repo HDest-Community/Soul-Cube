@@ -554,7 +554,7 @@ class HDSoulCube : HDWeapon
 								{
 									plr.regenblues--;
 								}
-								plr.A_GiveInventory("Health", 1);
+								plr.GiveBody(3);
 								A_GainExperience(1);
 							}
 						}
