@@ -12,6 +12,7 @@
 
 ### How it works
 ---
+- Double-tap Use to pick up a floating cube.
 - The cube passively collects frag only while it's in your inventory.
 - It needs at least 5 frag to become active.
 - Max frag capacity is 20 + 5 for each extra level.
