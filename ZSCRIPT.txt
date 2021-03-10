@@ -390,7 +390,8 @@ class HDSoulCube : HDWeapon
 
 	private clearscope int GetMaxFrag()
 	{
-		return 20 + 5 * WeaponStatus[SCProp_CubeLevel];
+		int Extra = AceCore.CheckForItem(owner, "HDArcanumTome") ? 10 : 5;
+		return 20 + Extra * WeaponStatus[SCProp_CubeLevel];
 	}
 
 	static void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
@@ -593,6 +594,7 @@ class HDSoulCube : HDWeapon
 							for (int i = 0; i < PlayerList.Size(); ++i)
 							{
 								let plr = PlayerList[i];
+								int RegenAmount = AceCore.CheckForItem(plr, "HDArcanumTome") ? 8 : 4;
 								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
 								{
@@ -603,12 +605,12 @@ class HDSoulCube : HDWeapon
 									}
 									else // [Ace] Batteries were full.
 									{
-										plr.regenblues += 4 * HitThingCount;
+										plr.regenblues += RegenAmount * HitThingCount;
 									}
 								}
 								else
 								{
-									plr.regenblues += 4 * HitThingCount;
+									plr.regenblues += RegenAmount * HitThingCount;
 								}
 							}
 						}
