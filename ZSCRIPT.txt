@@ -594,14 +594,16 @@ class HDSoulCube : HDWeapon
 							for (int i = 0; i < PlayerList.Size(); ++i)
 							{
 								let plr = PlayerList[i];
-								int RegenAmount = AceCore.CheckForItem(plr, "HDArcanumTome") ? 8 : 4;
+								bool HasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
+								int RegenAmount = (HasTome ? 4 : 3) * CubeLevel;
+
 								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
 								{
 									int Index = AceCore.GetHighestBattery(Battery, Battery.MaxPerUnit);
 									if (Index > -1)
 									{
-										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount, Battery.MaxPerUnit);
+										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount + int(HasTome), Battery.MaxPerUnit);
 									}
 									else // [Ace] Batteries were full.
 									{
