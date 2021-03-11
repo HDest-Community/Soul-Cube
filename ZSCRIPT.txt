@@ -300,7 +300,7 @@ class HDSoulCube : HDWeapon
 				}
 			}
 		}
-		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 5))
+		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 15))
 		{
 			A_PlayArcherSound(owner, "MaxedOut", local: true);
 			MaxFragTicker = 0;
