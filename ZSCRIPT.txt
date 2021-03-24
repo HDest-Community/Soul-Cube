@@ -140,9 +140,13 @@ class HDSoulCube : HDWeapon
 			{
 				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
-			else
+			else if (hpl.regenblues < 777 * 12)
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
+			}
+			else
+			{
+				BluesString = "\c[Cyan]Disciple of God\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
