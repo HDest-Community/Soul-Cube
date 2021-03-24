@@ -146,7 +146,7 @@ class HDSoulCube : HDWeapon
 			}
 			else
 			{
-				BluesString = "\c[Cyan]Disciple of God\c-";
+				BluesString = "\c[SC_BluesGod]Disciple of God\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
