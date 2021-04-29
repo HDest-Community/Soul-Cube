@@ -497,6 +497,7 @@ class HDSoulCube : HDWeapon
 
 					// [Ace] Target locator.
 					Array<Actor> TargetList;
+					Array<HDMobBase> FollowerList;
 					Array<HDPlayerPawn> PlayerList;
 					int HitThingCount = 0;
 					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
@@ -538,13 +539,18 @@ class HDSoulCube : HDWeapon
 						{
 							PlayerList.Push(HDPlayerPawn(Iterator.thing));
 						}
+
+						Name FollowerCls = 'HDFollower';
+						if (Iterator.thing is FollowerCls)
+						{
+							FollowerList.Push(HDMobBase(Iterator.thing));
+						}
 					}
 
 					// [Ace] Fire, incap, and regeneration.
 					for (int i = 0; i < PlayerList.Size(); ++i)
 					{
 						let plr = PlayerList[i];
-						
 						plr.A_GiveInventory("HDFireDouse", 20);
 						if (CubeLevel >= 1)
 						{
@@ -561,6 +567,23 @@ class HDSoulCube : HDWeapon
 								}
 								plr.GiveBody(3);
 								A_GainExperience(1);
+							}
+						}
+					}
+
+					for (int i = 0; i < FollowerList.Size(); ++i)
+					{
+						let flw = FollowerList[i];
+						if (CubeLevel >= 1)
+						{
+							if (flw.stunned > 0)
+							{
+								flw.stunned = max(flw.stunned - CubeLevel, 0);
+							}
+							if (flw.Health < flw.SpawnHealth() && level.time % int(175 - 23.34 * (CubeLevel - 1)) == 0)
+							{
+								flw.bodydamage = max(0, flw.bodydamage - 3);
+								flw.GiveBody(3);
 							}
 						}
 					}
