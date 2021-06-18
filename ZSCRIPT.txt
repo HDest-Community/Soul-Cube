@@ -112,9 +112,13 @@ class HDSoulCube : HDWeapon
 			{
 				AggroString = "\c[SC_AggroHigh]Your soul is nearly torn apart\c-";
 			}
+			else if (hpl.aggravateddamage <= 100)
+			{
+				AggroString = "\c[SC_AggroExtr]Your soul has been utterly scorched\c-";
+			}
 			else
 			{
-				AggroString = "\c[SC_AggroUlt]Your soul has been utterly scorched\c-";
+				AggroString = "\c[SC_AggroUlt]You are already dead.\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, AggroString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
