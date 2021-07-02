@@ -508,7 +508,7 @@ class HDSoulCube : HDWeapon
 					while (Iterator.Next())
 					{
 						Actor a = Iterator.thing;
-						if (Distance3D(a) > MaxRange || a.Health <= 0 || !CheckSight(a, SF_SEEPASTSHOOTABLELINES)
+						if (Distance3D(a) > MaxRange || a.Health <= 0 || !CheckSight(a, SF_SEEPASTSHOOTABLELINES))
 						{
 							continue;
 						}
