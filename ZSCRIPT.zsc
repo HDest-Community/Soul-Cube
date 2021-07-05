@@ -329,7 +329,7 @@ class HDSoulCube : HDWeapon
 							// [Ace] Because even instruments of total annihilation need emotional support.
 							if (hdsc_archermode)
 							{
-								A_PlayArcherSound(self, !random(0, 10) ? (WeaponStatus[SCProp_TimeWithOwner] > 35 * 60 * 60 && !random(0, 3) ? "PetUltraRare" : "PetRare") : "PetNormal");
+								A_PlayArcherSound(self, !random(0, 5) ? (WeaponStatus[SCProp_TimeWithOwner] > 35 * 60 * 60 && !random(0, 3) ? "PetUltraRare" : "PetRare") : "PetNormal");
 							}
 							PetTicker = 35 * 60;
 							PetCount = 0;
