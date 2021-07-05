@@ -2,6 +2,10 @@ SC/Activate SCACTIVT
 $limit SC/Activate 3
 SC/Ammo SCAMMO
 
+// --------------- MISCELLANEOUS ---------------
+
+SC/Archer/JokerStairs SCJKRSTR
+
 // --------------- PICKUP ---------------
 
 SC/Archer/PickupNormal1 SCPKUP01
@@ -208,10 +212,12 @@ $random SC/Archer/PowerDownNormal
 }
 
 SC/Archer/PowerDownRare1 SCPDWN11
+SC/Archer/PowerDownRare2 SCPDWN12
 
 $random SC/Archer/PowerDownRare
 {
 	SC/Archer/PowerDownRare1
+	SC/Archer/PowerDownRare2
 }
 
 // --------------- MAXED OUT ---------------
@@ -226,7 +232,7 @@ $random SC/Archer/MaxedOut
 }
 
 // --------------- ARCHVILE HUNT ---------------
-
+1
 SC/Archer/ArchHuntNormal1 SCARHN01
 SC/Archer/ArchHuntNormal2 SCARHN02
 SC/Archer/ArchHuntNormal3 SCARHN03
@@ -243,4 +249,49 @@ SC/Archer/ArchHuntRare1 SCARHN11
 $random SC/Archer/ArchHuntRare
 {
 	SC/Archer/ArchHuntRare1
+}
+
+// --------------- PET ---------------
+
+SC/Archer/PetNormal1 SCPET01
+SC/Archer/PetNormal2 SCPET02
+SC/Archer/PetNormal3 SCPET03
+SC/Archer/PetNormal4 SCPET04
+SC/Archer/PetNormal5 SCPET05
+
+$random SC/Archer/PetNormal
+{
+	SC/Archer/PetNormal1
+	SC/Archer/PetNormal2
+	SC/Archer/PetNormal3
+	SC/Archer/PetNormal4
+	SC/Archer/PetNormal5
+}
+
+SC/Archer/PetRare1 SCPET11
+SC/Archer/PetRare2 SCPET12
+SC/Archer/PetRare3 SCPET13
+SC/Archer/PetRare4 SCPET14
+SC/Archer/PetRare5 SCPET15
+SC/Archer/PetRare6 SCPET16
+SC/Archer/PetRare7 SCPET17
+
+$random SC/Archer/PetRare
+{
+	SC/Archer/PetRare1
+	SC/Archer/PetRare2
+	SC/Archer/PetRare3
+	SC/Archer/PetRare4
+	SC/Archer/PetRare5
+	SC/Archer/PetRare6
+	SC/Archer/PetRare7
+}
+
+SC/Archer/PetUltraRare1 SCPET21
+SC/Archer/PetUltraRare2 SCPET22
+
+$random SC/Archer/PetUltraRare
+{
+	SC/Archer/PetUltraRare1
+	SC/Archer/PetUltraRare2
 }
