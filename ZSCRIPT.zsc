@@ -298,6 +298,11 @@ class HDSoulCube : HDWeapon
 	{
 		Super.Tick();
 
+		if (GetAge() % 35 == 0 && PetCount > 0)
+		{
+			PetCount--;
+		}
+
 		PetTicker--;
 		if (PetTicker > 0 && !random(0, 2))
 		{
@@ -324,7 +329,7 @@ class HDSoulCube : HDWeapon
 					{
 						HasBeenPet = true;
 						A_ChangeVelocity(frandom(-0.15, 0.15), frandom(-0.15, 0.15), frandom(0.2, 0.6), CVF_RELATIVE);
-						if (++PetCount == 10)
+						if (++PetCount == 6)
 						{
 							// [Ace] Because even instruments of total annihilation need emotional support.
 							if (hdsc_archermode)
