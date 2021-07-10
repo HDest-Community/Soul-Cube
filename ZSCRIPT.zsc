@@ -406,7 +406,7 @@ class HDSoulCube : HDWeapon
 					{
 						if (hdsc_archermode)
 						{
-							A_PlayArcherSound(owner, "Ready", 0.5, true);
+							A_PlayArcherSound(owner, "Ready", CHANF_LOCAL);
 						}
 						else
 						{
@@ -419,7 +419,7 @@ class HDSoulCube : HDWeapon
 					{
 						if (!random(0, 1))
 						{
-							A_PlayArcherSound(owner, !random(0, 12) ? "FullRare" : "FullNormal");
+							A_PlayArcherSound(owner, !random(0, 12) ? "FullRare" : "FullNormal", CHANF_LOCAL);
 						}
 						HasAnnounced[1] = true;
 					}
@@ -430,7 +430,7 @@ class HDSoulCube : HDWeapon
 		}
 		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 15))
 		{
-			A_PlayArcherSound(owner, "MaxedOut", local: true);
+			A_PlayArcherSound(owner, "MaxedOut", CHANF_LOCAL);
 			MaxFragTicker = 0;
 		}
 
@@ -469,12 +469,10 @@ class HDSoulCube : HDWeapon
 			if (TraceData.HitActor)
 			{
 				invoker.Destination.master = TraceData.HitActor;
-				invoker.master = plr;
 			}
 			else
 			{
 				invoker.Destination.SetOrigin(TraceData.HitLocation + (0, 0, 16), false);
-				invoker.master = plr;
 			}
 		}
 		else
@@ -487,7 +485,7 @@ class HDSoulCube : HDWeapon
 		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 		if (!fromIncap && hdsc_archermode)
 		{
-			A_PlayArcherSound(plr, !random(0, 20) ? "UseRare" : "UseNormal");
+			A_PlayArcherSound(invoker, !random(0, 20) ? "UseRare" : "UseNormal");
 		}
 		invoker.Active = true;
 		invoker.bNOGRAVITY = true;
@@ -510,7 +508,7 @@ class HDSoulCube : HDWeapon
 			A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 			if (hdsc_archermode)
 			{
-				A_PlayArcherSound(plr, "LevelUp", local: true);
+				A_PlayArcherSound(plr, "LevelUp", CHANF_LOCAL);
 			}
 			plr.A_Log("The cube's power grows.", true);
 		}
@@ -522,10 +520,10 @@ class HDSoulCube : HDWeapon
 		return 20 + Extra * A_GetCubeLevel();
 	}
 
-	static void A_PlayArcherSound(Actor a, string snd, double vol = 1.0, bool local = false)
+	static void A_PlayArcherSound(Actor a, string snd, int flags = 0, double vol = 1.0, double atten = 0.5)
 	{
 		a.A_StopSound(10);
-		a.A_StartSound("SC/Archer/"..snd, 10, local ? CHANF_LOCAL : 0, volume: vol);
+		a.A_StartSound("SC/Archer/"..snd, 10, flags, volume: vol, attenuation: atten);
 	}
 
 	static const int ExperienceReqs[] = { 200, 800, 1500, 2500 };
@@ -612,7 +610,7 @@ class HDSoulCube : HDWeapon
 
 						if (hdsc_archermode)
 						{
-							A_PlayArcherSound(invoker.master, !random(0, 6) ? "PowerDownRare" : "PowerDownNormal");
+							A_PlayArcherSound(invoker, !random(0, 6) ? "PowerDownRare" : "PowerDownNormal");
 						}
 					}
 
@@ -638,7 +636,7 @@ class HDSoulCube : HDWeapon
 								if (!invoker.HasAnnounced[2])
 								{
 									invoker.HasAnnounced[2] = true;
-									A_PlayArcherSound(invoker.master, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
+									A_PlayArcherSound(invoker, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
 								}
 							}
 							Necro.tics -= 10;
