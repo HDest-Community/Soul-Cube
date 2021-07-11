@@ -232,7 +232,7 @@ $random SC/Archer/MaxedOut
 }
 
 // --------------- ARCHVILE HUNT ---------------
-1
+
 SC/Archer/ArchHuntNormal1 SCARHN01
 SC/Archer/ArchHuntNormal2 SCARHN02
 SC/Archer/ArchHuntNormal3 SCARHN03
