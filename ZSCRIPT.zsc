@@ -82,7 +82,7 @@ class HDSoulCube : HDWeapon
 		bob.y += Offset;
 		int BaseYOffset = -170;
 		
-		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER, alpha: 1.0, scale:(2, 2));
+		sb.DrawImage("SLCBA3A7", (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE, alpha: 1.0, scale:(2, 2));
 		BaseYOffset += 50;
 		if (WeaponStatus[SCProp_Frag] >= MinFrag)
 		{
@@ -548,6 +548,7 @@ class HDSoulCube : HDWeapon
 		+SLIDESONWALLS
 		+INVENTORY.INVBAR
 		+HDWEAPON.DONTFISTONDROP
+		+HDWEAPON.DROPTRANSLATION
 		Inventory.PickupSound "misc/w_pkup";
 		Scale 0.5;
 		HDWeapon.RefId "slc";

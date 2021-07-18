@@ -2,7 +2,7 @@ Code:
 - Accensus
 
 Sprites:
-- id Software, edited by a1337spy
+- id Software, edited by Mor'ladim
 
  Sounds:
 - id Software
