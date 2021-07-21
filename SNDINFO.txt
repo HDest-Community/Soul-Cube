@@ -119,6 +119,7 @@ SC/Archer/UseNormal5 SCUSE05
 SC/Archer/UseNormal6 SCUSE06
 SC/Archer/UseNormal7 SCUSE07
 SC/Archer/UseNormal8 SCUSE08
+SC/Archer/UseNormal9 SCUSE09
 
 $random SC/Archer/UseNormal
 {
@@ -130,6 +131,7 @@ $random SC/Archer/UseNormal
 	SC/Archer/UseNormal6
 	SC/Archer/UseNormal7
 	SC/Archer/UseNormal8
+	SC/Archer/UseNormal9
 }
 
 SC/Archer/UseRare1 SCUSE11
@@ -213,11 +215,13 @@ $random SC/Archer/PowerDownNormal
 
 SC/Archer/PowerDownRare1 SCPDWN11
 SC/Archer/PowerDownRare2 SCPDWN12
+SC/Archer/PowerDownRare3 SCPDWN13
 
 $random SC/Archer/PowerDownRare
 {
 	SC/Archer/PowerDownRare1
 	SC/Archer/PowerDownRare2
+	SC/Archer/PowerDownRare3
 }
 
 // --------------- MAXED OUT ---------------
@@ -258,6 +262,7 @@ SC/Archer/PetNormal2 SCPET02
 SC/Archer/PetNormal3 SCPET03
 SC/Archer/PetNormal4 SCPET04
 SC/Archer/PetNormal5 SCPET05
+SC/Archer/PetNormal6 SCPET06
 
 $random SC/Archer/PetNormal
 {
@@ -266,6 +271,7 @@ $random SC/Archer/PetNormal
 	SC/Archer/PetNormal3
 	SC/Archer/PetNormal4
 	SC/Archer/PetNormal5
+	SC/Archer/PetNormal6
 }
 
 SC/Archer/PetRare1 SCPET11
