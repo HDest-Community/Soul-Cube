@@ -120,7 +120,7 @@ class HDSoulCube : HDWeapon
 			}
 			else
 			{
-				AggroString = "\c[SC_AggroUlt]You are already dead.\c-";
+				AggroString = "\c[SC_AggroUlt]You are already dead\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, AggroString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
