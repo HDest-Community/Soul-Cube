@@ -215,13 +215,11 @@ $random SC/Archer/PowerDownNormal
 
 SC/Archer/PowerDownRare1 SCPDWN11
 SC/Archer/PowerDownRare2 SCPDWN12
-SC/Archer/PowerDownRare3 SCPDWN13
 
 $random SC/Archer/PowerDownRare
 {
 	SC/Archer/PowerDownRare1
 	SC/Archer/PowerDownRare2
-	SC/Archer/PowerDownRare3
 }
 
 // --------------- MAXED OUT ---------------
