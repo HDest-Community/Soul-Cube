@@ -262,7 +262,6 @@ SC/Archer/PetNormal2 SCPET02
 SC/Archer/PetNormal3 SCPET03
 SC/Archer/PetNormal4 SCPET04
 SC/Archer/PetNormal5 SCPET05
-SC/Archer/PetNormal6 SCPET06
 
 $random SC/Archer/PetNormal
 {
@@ -271,7 +270,6 @@ $random SC/Archer/PetNormal
 	SC/Archer/PetNormal3
 	SC/Archer/PetNormal4
 	SC/Archer/PetNormal5
-	SC/Archer/PetNormal6
 }
 
 SC/Archer/PetRare1 SCPET11
