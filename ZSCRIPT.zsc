@@ -742,7 +742,7 @@ class HDSoulCube : HDWeapon
 							{
 								let plr = PlayerList[i];
 								bool HasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
-								int RegenAmount = (HasTome ? 5 : 3) * cubeLevel;
+								int RegenAmount = (HasTome ? 2 : 1) * cubeLevel;
 
 								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
