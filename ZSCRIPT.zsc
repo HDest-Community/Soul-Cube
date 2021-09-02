@@ -130,23 +130,23 @@ class HDSoulCube : HDWeapon
 		string BluesString = "\c[White]We detect nothing supernatural in you\c-";
 		if (hpl.regenblues > 0)
 		{
-			if (hpl.regenblues < 144)
+			if (hpl.regenblues < HDBLU_BOTTLE * HDBLU_MOUTH)
 			{
 				BluesString = "\c[SC_BluesVLow]A faint supernatural presence can be felt\c-";
 			}
-			else if (hpl.regenblues < 777)
+			else if (hpl.regenblues < HDBLU_BALL)
 			{
 				BluesString = "\c[SC_BluesLow]There is something supernatural in you\c-";
 			}
-			else if (hpl.regenblues < 777 * 2)
+			else if (hpl.regenblues < HDBLU_BALL * 2)
 			{
 				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura\c-";
 			}
-			else if (hpl.regenblues < 777 * 4)
+			else if (hpl.regenblues < HDBLU_BALL * 4)
 			{
 				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
-			else if (hpl.regenblues < 777 * 12)
+			else if (hpl.regenblues < HDBLU_BALL * 12)
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
