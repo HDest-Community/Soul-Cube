@@ -128,25 +128,26 @@ class HDSoulCube : HDWeapon
 
 		// [Ace] Blues.
 		string BluesString = "\c[White]We detect nothing supernatural in you\c-";
-		if (hpl.regenblues > 0)
+		int blues = hpl.CountInv('HDBlues');
+		if (blues > 0)
 		{
-			if (hpl.regenblues < HDBLU_BOTTLE * HDBLU_MOUTH)
+			if (blues < HDBLU_BOTTLE * HDBLU_MOUTH)
 			{
 				BluesString = "\c[SC_BluesVLow]A faint supernatural presence can be felt\c-";
 			}
-			else if (hpl.regenblues < HDBLU_BALL)
+			else if (blues < HDBLU_BALL)
 			{
 				BluesString = "\c[SC_BluesLow]There is something supernatural in you\c-";
 			}
-			else if (hpl.regenblues < HDBLU_BALL * 2)
+			else if (blues < HDBLU_BALL * 2)
 			{
 				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura\c-";
 			}
-			else if (hpl.regenblues < HDBLU_BALL * 4)
+			else if (blues < HDBLU_BALL * 4)
 			{
 				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
-			else if (hpl.regenblues < HDBLU_BALL * 12)
+			else if (blues < HDBLU_BALL * 6)
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
@@ -678,13 +679,9 @@ class HDSoulCube : HDWeapon
 							{
 								plr.incaptimer = max(plr.incaptimer - cubeLevel, 0);
 							}
-							bool HasBlues = plr.regenblues > 0;
-							if (plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (cubeLevel - 1) - (HasBlues ? 35 : 0)) == 0)
+							bool hasBlues = plr.CountInv('HDBlues') > 0;
+							if (plr.Health < plr.MaxHealth() && level.time % int(175 - 23.34 * (cubeLevel - 1) - (hasBlues ? 35 : 0)) == 0)
 							{
-								if (HasBlues)
-								{
-									plr.regenblues--;
-								}
 								plr.GiveBody(3);
 								A_GainExperience(1);
 							}
@@ -741,8 +738,7 @@ class HDSoulCube : HDWeapon
 							for (int i = 0; i < PlayerList.Size(); ++i)
 							{
 								let plr = PlayerList[i];
-								bool HasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
-								int RegenAmount = (HasTome ? 2 : 1) * cubeLevel;
+								bool hasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
 
 								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
@@ -750,16 +746,8 @@ class HDSoulCube : HDWeapon
 									int Index = AceCore.GetHighestBattery(Battery, Battery.MaxPerUnit);
 									if (Index > -1)
 									{
-										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount + int(HasTome), Battery.MaxPerUnit);
+										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount + int(hasTome), Battery.MaxPerUnit);
 									}
-									else // [Ace] Batteries were full.
-									{
-										plr.regenblues += RegenAmount * HitThingCount;
-									}
-								}
-								else
-								{
-									plr.regenblues += RegenAmount * HitThingCount;
 								}
 							}
 						}

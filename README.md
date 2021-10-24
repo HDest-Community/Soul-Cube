@@ -20,7 +20,7 @@
 - Each level increases damage and rate of fire.
 - Frag collection frequency increases with level. Range does not.
 - Attacks up to 3 enemies at once, dealing a flat amount of damage and ignoring shields/armor. Each attack costs 1 frag.
-- Each attack recharges all nearby visible players' highest non-full battery OR gives all of them a little bit of blues.
+- Each attack recharges all nearby visible players' highest non-full battery.
 - 20 frag can be expended at L1+ to grant the player spiritual armor. At L1, you can only grant 1 layer. Up to 3 layers at L3.
 
 ##### While it is out, it has these passive effects:
