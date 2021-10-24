@@ -748,6 +748,14 @@ class HDSoulCube : HDWeapon
 									{
 										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount + int(hasTome), Battery.MaxPerUnit);
 									}
+									else
+									{
+										plr.GiveBody(1 + cubeLevel, plr.MaxHealth());
+									}
+								}
+								else
+								{
+									plr.GiveBody(1 + cubeLevel, plr.MaxHealth());
 								}
 							}
 						}
