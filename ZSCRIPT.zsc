@@ -750,12 +750,12 @@ class HDSoulCube : HDWeapon
 									}
 									else
 									{
-										plr.GiveBody(1 + cubeLevel, plr.MaxHealth());
+										plr.GiveBody(1 + cubeLevel, hasTome ? 0 : plr.MaxHealth());
 									}
 								}
 								else
 								{
-									plr.GiveBody(1 + cubeLevel, plr.MaxHealth());
+									plr.GiveBody(1 + cubeLevel, hasTome ? 0 : plr.MaxHealth());
 								}
 							}
 						}
