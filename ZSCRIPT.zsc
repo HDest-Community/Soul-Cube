@@ -530,7 +530,7 @@ class HDSoulCube : HDWeapon
 	static const int ExperienceReqs[] = { 200, 800, 1500, 2500 };
 	const MinFrag = 5;
 	const MaxRange = 512;
-	const PetCooldown = -(35 * 60 * 20);
+	const PetCooldown = -(35 * 60 * 15);
 	private bool Active;
 	private bool HasAnnounced[3];
 	private int PickupTimer;
