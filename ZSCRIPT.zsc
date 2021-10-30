@@ -337,7 +337,7 @@ class HDSoulCube : HDWeapon
 							{
 								A_PlayArcherSound(self, !random(0, 5) ? (WeaponStatus[SCProp_TimeWithOwner] > 35 * 60 * 120 && !random(0, 3) ? "PetUltraRare" : "PetRare") : "PetNormal");
 							}
-							PetTicker = 35 * 120;
+							PetTicker = 35 * 60 * 4;
 							PetCount = 0;
 							A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 							for (int i = 0; i < 64; ++i)
