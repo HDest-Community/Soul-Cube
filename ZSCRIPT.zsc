@@ -740,7 +740,7 @@ class HDSoulCube : HDWeapon
 							{
 								let plr = PlayerList[i];
 								bool hasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
-								int regenAmount = (hasTome ? 2 : 1) * cubeLevel;
+								int regenAmount = cubeLevel + HitThingCount + int(hasTome) * cubeLevel;
 
 								let Battery = HDBattery(plr.FindInventory("HDBattery"));
 								if (Battery)
@@ -752,12 +752,12 @@ class HDSoulCube : HDWeapon
 									}
 									else // [Ace] Batteries were full.
 									{
-										plr.A_GiveInventory('HDBlues', regenAmount * HitThingCount);
+										plr.A_GiveInventory('HDBlues', regenAmount);
 									}
 								}
 								else
 								{
-									plr.A_GiveInventory('HDBlues', regenAmount * HitThingCount);
+									plr.A_GiveInventory('HDBlues', regenAmount);
 								}
 							}
 						}
