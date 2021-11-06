@@ -573,11 +573,10 @@ class HDSoulCube : HDWeapon
 					{
 						if (invoker.Distance2D(invoker.Destination) > 40 || abs(invoker.pos.z - invoker.Destination.pos.z) > 20)
 						{
-							vector3 diff = level.Vec3Diff(invoker.pos, invoker.Destination.pos);
-							double PitchToDest = atan2(diff.z, diff.xy.length());
+							double pToDest = AceCore.PitchTo(invoker, invoker.Destination);
 
 							A_Face(invoker.Destination, 180, 45);
-							A_ChangeVelocity(1.0 * cos(PitchToDest), 0, 1.0 * sin(PitchToDest), CVF_RELATIVE);
+							A_ChangeVelocity(1.0 * cos(pToDest), 0, 1.0 * sin(pToDest), CVF_RELATIVE);
 							vel.x = clamp(vel.x, -6, 6);
 							vel.y = clamp(vel.y, -6, 6);
 							vel.z = clamp(vel.z, -6, 6);
