@@ -727,11 +727,15 @@ class HDSoulCube : HDWeapon
 								if (TargetList[i])
 								{
 									TargetList[i].DamageMobj(invoker, invoker.master, 150 + 25 * cubeLevel, 'Holy', DMG_THRUSTLESS);
+									A_GainExperience(1); // [Ace] Per enemy hit.
+									if (!TargetList[i])
+									{
+										continue;
+									}
 									for (int j = 0; j < 80; ++j)
 									{
 										TargetList[i].A_SpawnParticle(partCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
 									}
-									A_GainExperience(1); // [Ace] Per enemy hit.
 								}
 							}
 
