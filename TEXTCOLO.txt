@@ -3,7 +3,8 @@ SC_BluesLow { #000000 #85ccff }
 SC_BluesMed { #000000 #42b0ff }
 SC_BluesHigh { #000000 #055dff }
 SC_BluesUlt { #000000 #0810e7 }
-SC_BluesGod { #000000 #3b0099 }
+SC_BluesAlmostGod { #000000 #3b0099 }
+SC_BluesGod { #000000 #b133ff }
 
 SC_AggroNone { #000000 #38ff49 }
 SC_AggroVLow { #000000 #1bde2c }

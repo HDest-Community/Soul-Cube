@@ -151,9 +151,13 @@ class HDSoulCube : HDWeapon
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
+			else if (blues < HDBLU_BALL * 32)
+			{
+				BluesString = "\c[SC_BluesAlmostGod]Disciple of God\c-";
+			}
 			else
 			{
-				BluesString = "\c[SC_BluesGod]Disciple of God\c-";
+				BluesString = "\c[SC_BluesGod]Divine ascendancy\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
