@@ -147,7 +147,7 @@ class HDSoulCube : HDWeapon
 			{
 				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
-			else if (blues < HDBLU_BALL * 6)
+			else if (blues < HDBLU_BALL * 12)
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
