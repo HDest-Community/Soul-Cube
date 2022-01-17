@@ -139,15 +139,15 @@ class HDSoulCube : HDWeapon
 			{
 				BluesString = "\c[SC_BluesLow]There is something supernatural in you\c-";
 			}
-			else if (blues < HDBLU_BALL * 2)
+			else if (blues < HDBLU_BALL * 4)
 			{
 				BluesString = "\c[SC_BluesMed]You emanate a strange supernatural aura\c-";
 			}
-			else if (blues < HDBLU_BALL * 4)
+			else if (blues < HDBLU_BALL * 8)
 			{
 				BluesString = "\c[SC_BluesHigh]Your body is infused with the supernatural\c-";
 			}
-			else if (blues < HDBLU_BALL * 12)
+			else if (blues < HDBLU_BALL * 16)
 			{
 				BluesString = "\c[SC_BluesUlt]Holy burning hand of wrath\c-";
 			}
@@ -155,9 +155,13 @@ class HDSoulCube : HDWeapon
 			{
 				BluesString = "\c[SC_BluesAlmostGod]Disciple of God\c-";
 			}
-			else
+			else if (blues < HDBLU_BALL * 64)
 			{
 				BluesString = "\c[SC_BluesGod]Divine ascendancy\c-";
+			}
+			else
+			{
+				BluesString = "\c[SC_BluesGoddamn]God\c-";
 			}
 		}
 		sb.DrawString(sb.pSmallFont, BluesString, (0, BaseYOffset) + bob, sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_CENTER);
