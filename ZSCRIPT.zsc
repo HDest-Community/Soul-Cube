@@ -558,7 +558,7 @@ class HDSoulCube : HDWeapon
 		+INVENTORY.INVBAR
 		+HDWEAPON.DONTFISTONDROP
 		+HDWEAPON.DROPTRANSLATION
-		Inventory.PickupSound "misc/w_pkup";
+		Inventory.PickupSound "weapons/pocket";
 		Scale 0.5;
 		HDWeapon.RefId "slc";
 		Tag "Soul Cube";
