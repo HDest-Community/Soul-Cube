@@ -398,18 +398,18 @@ class HDSoulCube : HDWeapon
 		if (WeaponStatus[SCProp_Frag] < MaxFrag && level.time % int(105 - 17.5 * A_GetCubeLevel()) == 0 && !random(0, 1))
 		{
 			// [Ace] This is actually a square but it's invisible so who cares?
-			let Iterator = BlockThingsIterator.Create(owner, MaxRange);
-			while (Iterator.Next())
+			let it = BlockThingsIterator.Create(owner, MaxRange);
+			while (it.Next())
 			{
-				bool IsSuperShard = Iterator.thing is 'NecroGhostShard';
-				bool IsRegularShard = Iterator.thing is 'BFGNecroShard';
+				bool IsSuperShard = it.thing is 'NecroGhostShard';
+				bool IsRegularShard = it.thing is 'BFGnecroShard';
 
 				if (IsRegularShard || IsSuperShard && !random(0, 2))
 				{
 					owner.A_StartSound("SC/Ammo", 9, CHANF_LOCAL, volume: 0.45);
 					WeaponStatus[SCProp_Frag] += IsSuperShard ? 3 : 1;
 					A_GainExperience(IsSuperShard ? 3 : 1);
-					Iterator.thing.Destroy();
+					it.thing.Destroy();
 
 					if (!HasAnnounced[0] && WeaponStatus[SCProp_Frag] >= MinFrag)
 					{
@@ -423,7 +423,6 @@ class HDSoulCube : HDWeapon
 						}
 						HasAnnounced[0] = true;
 					}
-
 					if (!HasAnnounced[1] && WeaponStatus[SCProp_Frag] >= MaxFrag && hdsc_archermode)
 					{
 						if (!random(0, 1))
@@ -432,7 +431,6 @@ class HDSoulCube : HDWeapon
 						}
 						HasAnnounced[1] = true;
 					}
-
 					break;
 				}
 			}
@@ -624,21 +622,21 @@ class HDSoulCube : HDWeapon
 					}
 
 					// [Ace] Target locator.
-					Array<Actor> TargetList;
-					Array<HDMobBase> FollowerList;
-					Array<HDPlayerPawn> PlayerList;
-					int HitThingCount = 0;
-					let Iterator = BlockThingsIterator.Create(invoker, MaxRange);
-					while (Iterator.Next())
+					Array<Actor> tList;
+					Array<HDMobBase> fList;
+					Array<HDPlayerPawn> pList;
+					int hitThingCount = 0;
+					let it = BlockThingsIterator.Create(invoker, MaxRange);
+					while (it.Next())
 					{
-						Actor a = Iterator.thing;
+						Actor a = it.thing;
 						if (Distance3D(a) > MaxRange || a.Health <= 0 || !CheckSight(a, SF_SEEPASTSHOOTABLELINES | SF_IGNOREVISIBILITY))
 						{
 							continue;
 						}
 
-						let Necro = Necromancer(a);
-						if (Necro && Necro.tics > 105 && Necro.InStateSequence(Necro.CurState, Necro.FindState('painedandgone')))
+						let necro = necromancer(a);
+						if (necro && necro.tics > 105 && necro.InStateSequence(necro.CurState, necro.FindState('painedandgone')))
 						{
 							if (hdsc_archermode)
 							{
@@ -648,37 +646,39 @@ class HDSoulCube : HDWeapon
 									A_PlayArcherSound(invoker, !random(0, 16) ? "ArchHuntRare" : "ArchHuntNormal");
 								}
 							}
-							Necro.tics -= 10;
+							necro.tics -= 10;
 						}
 
-						if (HitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY && (HDMobBase(a) ? HDMobBase(a).bodydamage < a.SpawnHealth() * 1.2 : true))
+						if (hitThingCount < 3 && (a is 'BonerBall' || a.bISMONSTER) && a.bSHOOTABLE && !a.bFRIENDLY && (!HDMobBase(a) || HDMobBase(a).bodydamage < a.SpawnHealth() * 1.2))
 						{
 							for (int i = 0; i < 2; ++i)
 							{
 								a.A_SpawnParticle(partCol, 0, 25, random(2, 5), 0, frandom(-a.Radius, a.Radius), frandom(-a.Radius, a.Radius), frandom(0, a.Height), 0, 0, random(3, 6));
 							}
 
-							TargetList.Push(a);
-							HitThingCount = TargetList.Size();
+							tList.Push(a);
+							hitThingCount++;
 							continue;
 						}
 
-						if (Iterator.thing is 'HDPlayerPawn')
+						if (a is 'HDPlayerPawn')
 						{
-							PlayerList.Push(HDPlayerPawn(Iterator.thing));
+							pList.Push(HDPlayerPawn(it.thing));
+							continue;
 						}
 
 						Name FollowerCls = 'HDFollower';
-						if (Iterator.thing is FollowerCls)
+						if (a is FollowerCls)
 						{
-							FollowerList.Push(HDMobBase(Iterator.thing));
+							fList.Push(HDMobBase(it.thing));
+							continue;
 						}
 					}
 
 					// [Ace] Fire, incap, and regeneration.
-					for (int i = 0; i < PlayerList.Size(); ++i)
+					for (int i = 0; i < pList.Size(); ++i)
 					{
-						let plr = PlayerList[i];
+						let plr = pList[i];
 						plr.A_GiveInventory("HDFireDouse", 20);
 						if (cubeLevel >= 1)
 						{
@@ -696,9 +696,9 @@ class HDSoulCube : HDWeapon
 						}
 					}
 
-					for (int i = 0; i < FollowerList.Size(); ++i)
+					for (int i = 0; i < fList.Size(); ++i)
 					{
-						let flw = FollowerList[i];
+						let flw = fList[i];
 						if (cubeLevel >= 1)
 						{
 							if (flw.stunned > 0)
@@ -714,7 +714,7 @@ class HDSoulCube : HDWeapon
 					}
 
 					// [Ace] Attack stuff.
-					if (HitThingCount > 0)
+					if (hitThingCount > 0)
 					{
 						if (++invoker.ShootTicker >= 35 - 5 * cubeLevel)
 						{
@@ -730,36 +730,36 @@ class HDSoulCube : HDWeapon
 								invoker.HasAnnounced[1] = false;
 							}
 
-							for (int i = 0; i < HitThingCount; ++i)
+							for (int i = 0; i < hitThingCount; ++i)
 							{
-								if (TargetList[i])
+								if (tList[i])
 								{
-									TargetList[i].DamageMobj(invoker, invoker.master, 150 + 25 * cubeLevel, 'Holy', DMG_THRUSTLESS);
+									tList[i].DamageMobj(invoker, invoker.master, 150 + 25 * cubeLevel, 'Holy', DMG_THRUSTLESS);
 									A_GainExperience(1); // [Ace] Per enemy hit.
-									if (!TargetList[i])
+									if (!tList[i])
 									{
 										continue;
 									}
 									for (int j = 0; j < 80; ++j)
 									{
-										TargetList[i].A_SpawnParticle(partCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, TargetList[i].Radius), 0, frandom(0, TargetList[i].height), frandom(0, 1), 0, frandom(0, 3));
+										tList[i].A_SpawnParticle(partCol, SPF_RELATIVE, random(35, 70), random(4, 8), random(0, 359), frandom(0, tList[i].Radius), 0, frandom(0, tList[i].height), frandom(0, 1), 0, frandom(0, 3));
 									}
 								}
 							}
 
-							for (int i = 0; i < PlayerList.Size(); ++i)
+							for (int i = 0; i < pList.Size(); ++i)
 							{
-								let plr = PlayerList[i];
+								let plr = pList[i];
 								bool hasTome = AceCore.CheckForItem(plr, "HDArcanumTome");
-								int regenAmount = cubeLevel + HitThingCount + int(hasTome) * cubeLevel;
+								int regenAmount = cubeLevel + hitThingCount + int(hasTome) * cubeLevel;
 
-								let Battery = HDBattery(plr.FindInventory("HDBattery"));
-								if (Battery)
+								let bat = HDBattery(plr.FindInventory("HDBattery"));
+								if (bat)
 								{
-									int Index = AceCore.GetHighestBattery(Battery, Battery.MaxPerUnit);
-									if (Index > -1)
+									int index = AceCore.GetHighestBattery(bat, bat.MaxPerUnit);
+									if (index > -1)
 									{
-										Battery.Mags[Index] = min(Battery.Mags[Index] + HitThingCount + int(hasTome), Battery.MaxPerUnit);
+										bat.Mags[index] = min(bat.Mags[index] + hitThingCount + int(hasTome), bat.MaxPerUnit);
 									}
 									else // [Ace] Batteries were full.
 									{
