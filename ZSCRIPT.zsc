@@ -50,12 +50,12 @@ class HDSoulCube : HDWeapon
 	{
 		SCProp_Flags,
 		SCProp_UseOffset,
-		SCProp_Mode,
 		SCProp_Frag,
 		SCProp_CubeLevel,
 		SCProp_CubeExperience,
 		SCProp_TimeWithOwner,
-		SCProp_LastOwnerNumber
+		SCProp_LastOwnerNumber,
+		SCProp_Mode
 	}
 
 	enum SCModes
