@@ -22,6 +22,7 @@
 - Frag collection frequency increases with level. Range does not.
 - Attacks up to 3 enemies at once, dealing a flat amount of damage and ignoring shields/armor. Each attack costs 1 frag.
 - Frag can be expended manually through the various modes the cube has.
+- Some effects are amplified if the cube is overcharged.
 
 ##### While it is out, it has these passive effects:
 - Helps put out fire faster.

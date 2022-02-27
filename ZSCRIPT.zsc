@@ -302,7 +302,7 @@ class HDSoulCube : HDWeapon
 				A_PlayArcherSound(other, "ConsumeNormal");
 			}
 			Cube.A_GainExperience(WeaponStatus[SCProp_CubeExperience] + 200);
-			Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 15;
+			Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 20;
 			Destroy();
 			return;
 		}
@@ -406,15 +406,15 @@ class HDSoulCube : HDWeapon
 			HasAnnounced[0] = false;
 		}
 
-		int MaxFrag = GetMaxFrag();
-		if (WeaponStatus[SCProp_Frag] < MaxFrag && level.time % int(105 - 17.5 * A_GetCubeLevel()) == 0 && !random(0, 1))
+		int maxFrag = A_GetMaxFrag();
+		if (WeaponStatus[SCProp_Frag] < maxFrag && level.time % int(105 - 17.5 * A_GetCubeLevel()) == 0 && !random(0, 1))
 		{
 			// [Ace] This is actually a square but it's invisible so who cares?
 			let it = BlockThingsIterator.Create(owner, MaxRange);
 			while (it.Next())
 			{
 				bool IsSuperShard = it.thing is 'NecroGhostShard';
-				bool IsRegularShard = it.thing is 'BFGnecroShard';
+				bool IsRegularShard = it.thing is 'BFGNecroShard';
 
 				if (IsRegularShard || IsSuperShard && !random(0, 2))
 				{
@@ -435,7 +435,7 @@ class HDSoulCube : HDWeapon
 						}
 						HasAnnounced[0] = true;
 					}
-					if (!HasAnnounced[1] && WeaponStatus[SCProp_Frag] >= MaxFrag && hdsc_archermode)
+					if (!HasAnnounced[1] && WeaponStatus[SCProp_Frag] >= maxFrag && hdsc_archermode)
 					{
 						if (!random(0, 1))
 						{
@@ -447,7 +447,7 @@ class HDSoulCube : HDWeapon
 				}
 			}
 		}
-		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= MaxFrag && ++MaxFragTicker >= (35 * 60 * 15))
+		else if (hdsc_archermode && WeaponStatus[SCProp_Frag] >= maxFrag && ++MaxFragTicker >= (35 * 60 * 15))
 		{
 			A_PlayArcherSound(owner, "MaxedOut", CHANF_LOCAL);
 			MaxFragTicker = 0;
@@ -533,10 +533,10 @@ class HDSoulCube : HDWeapon
 		}
 	}
 
-	private clearscope int GetMaxFrag()
+	private action clearscope int A_GetMaxFrag()
 	{
-		int Extra = AceCore.CheckForItem(owner, "HDArcanumTome") ? 10 : 5;
-		return 20 + Extra * A_GetCubeLevel();
+		int extra = AceCore.CheckForItem(invoker.owner, "HDArcanumTome") ? 10 : 5;
+		return 20 + extra * A_GetCubeLevel();
 	}
 
 	static void A_PlayArcherSound(Actor a, string snd, int flags = 0, double vol = 1.0, double atten = 0.5)
@@ -721,9 +721,12 @@ class HDSoulCube : HDWeapon
 					{
 						if (++invoker.ShootTicker >= 35 - 5 * cubeLevel)
 						{
+							int maxFrag = invoker.A_GetMaxFrag();
+							bool overcharged = invoker.WeaponStatus[SCProp_Frag] > maxFrag;
+
 							invoker.ShootTicker = 0;
 							invoker.WeaponStatus[SCProp_Frag]--;
-							if (invoker.WeaponStatus[SCProp_Frag] < invoker.GetMaxFrag())
+							if (invoker.WeaponStatus[SCProp_Frag] < maxFrag)
 							{
 								invoker.MaxFragTicker = 0;
 								invoker.HasAnnounced[1] = false;
@@ -733,7 +736,7 @@ class HDSoulCube : HDWeapon
 							{
 								if (tList[i])
 								{
-									tList[i].DamageMobj(invoker, invoker.master, 150 + 25 * cubeLevel, 'Holy', DMG_THRUSTLESS);
+									tList[i].DamageMobj(invoker, invoker.master, 150 + 25 * cubeLevel + 15 * int(overcharged), 'Holy', DMG_THRUSTLESS);
 									A_GainExperience(1); // [Ace] Per enemy hit.
 									if (!tList[i])
 									{
@@ -808,6 +811,7 @@ class HDSoulCube : HDWeapon
 				{
 					int cubeLevel = A_GetCubeLevel(); // [Ace] If cubeLevel is not used directly, it's intentional.
 					bool hasTome = AceCore.CheckForItem(self, "HDArcanumTome");
+					bool overcharged = invoker.WeaponStatus[SCProp_Frag] > A_GetMaxFrag();
 
 					switch (invoker.WeaponStatus[SCProp_Mode])
 					{
@@ -828,7 +832,7 @@ class HDSoulCube : HDWeapon
 								A_SpawnParticle(0xFF1111, SPF_RELATIVE, random(35, 70), random(2, 4), random(0, 359), frandom(0, radius * 1.5), 0, frandom(0, height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
 							}
 							A_StartSound("SC/Action", CHAN_WEAPON, pitch: 1.5);
-							GiveBody((cubeLevel + 1) * 3);
+							GiveBody((cubeLevel + 1) * (3 + int(overcharged)));
 							A_GainExperience(1);
 							invoker.WeaponStatus[SCProp_Frag]--;
 							A_SetTics(15);
@@ -870,7 +874,7 @@ class HDSoulCube : HDWeapon
 								A_SpawnParticle(0x3333FF, SPF_RELATIVE, random(35, 70), random(2, 4), random(0, 359), frandom(0, radius * 1.5), 0, frandom(0, height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
 							}
 							A_StartSound("SC/Action", CHAN_WEAPON, pitch: 1.5);
-							A_GiveInventory('HDBlues', (cubeLevel + 1) * (hasTome ? 4 : 2));
+							A_GiveInventory('HDBlues', (cubeLevel + 1) * ((hasTome ? 4 : 2) + int(overcharged)));
 							A_GainExperience(2);
 							invoker.WeaponStatus[SCProp_Frag]--;
 							A_SetTics(10);
@@ -889,7 +893,7 @@ class HDSoulCube : HDWeapon
 										A_SpawnParticle(0x88FF22, SPF_RELATIVE, random(35, 70), random(2, 4), random(0, 359), frandom(0, radius * 1.5), 0, frandom(0, height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
 									}
 									A_StartSound("SC/Action", CHAN_WEAPON, pitch: 1.5);
-									bat.Mags[index] = min(bat.Mags[index] + 3 + int(hasTome), bat.MaxPerUnit);
+									bat.Mags[index] = min(bat.Mags[index] + 3 + int(hasTome) + int(overcharged), bat.MaxPerUnit);
 									A_GainExperience(2);
 									invoker.WeaponStatus[SCProp_Frag]--;
 									A_SetTics(15);
