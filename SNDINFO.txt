@@ -2,6 +2,7 @@ SC/Activate SCACTIVT
 $limit SC/Activate 3
 SC/Ammo SCAMMO
 $alias SC/Action SC/Ammo
+$pitchset SC/Action 1.5
 
 // --------------- MISCELLANEOUS ---------------
 
