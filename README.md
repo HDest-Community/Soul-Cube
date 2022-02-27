@@ -18,14 +18,12 @@
 - Max frag capacity is 20 + 5 for each extra level.
 - Max level is 4. Cube starts at level 0.
 - Level is increased by gaining experience. Experience is gained by using the cube.
-- Each level increases damage and rate of fire.
+- Each level increases damage and rate of fire, and also the effectiveness of certain things.
 - Frag collection frequency increases with level. Range does not.
 - Attacks up to 3 enemies at once, dealing a flat amount of damage and ignoring shields/armor. Each attack costs 1 frag.
-- Each attack recharges all nearby visible players' highest non-full battery.
-- 20 frag can be expended at L1+ to grant the player spiritual armor. At L1, you can only grant 1 layer. Up to 3 layers at L3.
+- Frag can be expended manually through the various modes the cube has.
 
 ##### While it is out, it has these passive effects:
 - Helps put out fire faster.
-- [L1+] Helps with incap.
-- [L1+] Speeds up regeneration if you have blues.
+- Helps with incap.
 - Compels pained archviles to show up sooner.

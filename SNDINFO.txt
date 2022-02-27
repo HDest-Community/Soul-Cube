@@ -1,6 +1,7 @@
 SC/Activate SCACTIVT
 $limit SC/Activate 3
 SC/Ammo SCAMMO
+$alias SC/Action SC/Ammo
 
 // --------------- MISCELLANEOUS ---------------
 
