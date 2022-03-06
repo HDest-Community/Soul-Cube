@@ -560,6 +560,7 @@ class HDSoulCube : HDWeapon
 	private bool HasBeenPet;
 	private int PetTicker;
 	private int JokerTicker;
+	private bool IgnoreMinFrag;
 
 	Default
 	{
@@ -785,6 +786,8 @@ class HDSoulCube : HDWeapon
 					return;
 				}
 
+				invoker.IgnoreMinFrag = false;
+
 				A_WeaponReady(WRF_ALLOWUSER2 | WRF_ALLOWUSER3 | WRF_NOFIRE);
 			}
 			Goto ReadyEnd;
@@ -813,7 +816,7 @@ class HDSoulCube : HDWeapon
 			TNT1 A 0 A_JumpIf(!PressingFire() && !PressingAltfire(), "Ready");
 			TNT1 A 1
 			{
-				if (invoker.WeaponStatus[SCProp_Frag] < MinFrag)
+				if (invoker.WeaponStatus[SCProp_Frag] == 0 || !invoker.IgnoreMinFrag && invoker.WeaponStatus[SCProp_Frag] < MinFrag)
 				{
 					SetWeaponState("Nope");
 					return;
@@ -856,6 +859,7 @@ class HDSoulCube : HDWeapon
 							A_GainExperience(2);
 							invoker.WeaponStatus[SCProp_Frag]--;
 							A_SetTics(15);
+							invoker.IgnoreMinFrag = true;
 							break;
 						}
 						case SCMode_ConvertFrag:
@@ -869,6 +873,7 @@ class HDSoulCube : HDWeapon
 							A_GainExperience(2);
 							invoker.WeaponStatus[SCProp_Frag]--;
 							A_SetTics(10);
+							invoker.IgnoreMinFrag = true;
 							break;
 						}
 						case SCMode_SpiritualArmor:
@@ -918,6 +923,7 @@ class HDSoulCube : HDWeapon
 									A_GainExperience(2);
 									invoker.WeaponStatus[SCProp_Frag]--;
 									A_SetTics(15);
+									invoker.IgnoreMinFrag = true;
 								}
 							}
 							break;
