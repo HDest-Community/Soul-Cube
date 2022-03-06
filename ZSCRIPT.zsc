@@ -864,8 +864,8 @@ class HDSoulCube : HDWeapon
 									A_PlayArcherSound(self, "Praise");
 								}
 								SetWeaponState("Nope");
-								break;
 							}
+							break;
 						}
 						case SCMode_ConvertFrag:
 						{
