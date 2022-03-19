@@ -301,6 +301,7 @@ class HDSoulCube : HDWeapon
 			{
 				A_PlayArcherSound(other, "ConsumeNormal");
 			}
+			Cube.WeaponStatus[SCProp_CubeLevel] = min(ExperienceReqs.Size(), Cube.WeaponStatus[SCProp_CubeLevel] + WeaponStatus[SCProp_CubeLevel]);
 			Cube.A_GainExperience(WeaponStatus[SCProp_CubeExperience] + 200);
 			Cube.WeaponStatus[SCProp_Frag] += WeaponStatus[SCProp_Frag] + 20;
 			Destroy();
