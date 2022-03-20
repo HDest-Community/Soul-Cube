@@ -501,6 +501,10 @@ class HDSoulCube : HDWeapon
 		}
 
 		invoker.master = plr;
+		if (!fromIncap)
+		{
+			plr.player.PendingWeapon = Weapon(plr.FindInventory('HDFist'));
+		}
 		plr.DropInventory(invoker);
 		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
 		if (!fromIncap && hdsc_archermode)
