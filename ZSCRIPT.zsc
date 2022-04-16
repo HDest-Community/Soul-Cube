@@ -629,9 +629,9 @@ class HDSoulCube : HDWeapon
 					{
 						invoker.bNOGRAVITY = false;
 						invoker.Active = false;
-						if (invoker.tracer)
+						if (invoker.Destination)
 						{
-							invoker.tracer.Destroy();
+							invoker.Destination.Destroy();
 						}
 
 						if (hdsc_archermode)
