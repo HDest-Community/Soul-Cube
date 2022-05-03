@@ -334,7 +334,7 @@ class HDSoulCube : HDWeapon
 		req = CoreHandler.GetRequest('SoulCubeUp', self);
 		if (req)
 		{
-			A_GainExperience(ExperienceReqs[min(ExperienceReqs.Size() - 1, WeaponStatus[SCProp_CubeLevel] + 1)]);
+			A_GainExperience(ExperienceReqs[min(ExperienceReqs.Size() - 1, WeaponStatus[SCProp_CubeLevel])]);
 			req.Destroy();
 			return;
 		}
