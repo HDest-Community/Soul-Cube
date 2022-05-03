@@ -345,6 +345,13 @@ class HDSoulCube : HDWeapon
 			req.Destroy();
 			return;
 		}
+		req = CoreHandler.GetRequest('ChargeSoulCube', self);
+		if (req)
+		{
+			WeaponStatus[SCProp_Frag] += req.Arg.ToInt();
+			req.Destroy();
+			return;
+		}
 
 		// ------------------------------------------------------------
 		//
