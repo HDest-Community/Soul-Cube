@@ -315,6 +315,41 @@ class HDSoulCube : HDWeapon
 	{
 		Super.Tick();
 
+		// ------------------------------------------------------------
+		//
+		// ------------------------------------------------------------
+
+		if (!CoreHandler)
+		{
+			CoreHandler = AceCoreHandler(EventHandler.Find('AceCoreHandler'));
+		}
+
+		InterfaceRequest req = CoreHandler.GetRequest('DepleteSoulCube', self);
+		if (req)
+		{
+			WeaponStatus[SCProp_Frag] = max(0, WeaponStatus[SCProp_Frag] - req.Arg.ToInt());
+			req.Destroy();
+			return;
+		}
+		req = CoreHandler.GetRequest('SoulCubeUp', self);
+		if (req)
+		{
+			A_GainExperience(ExperienceReqs[min(ExperienceReqs.Size() - 1, WeaponStatus[SCProp_CubeLevel] + 1)]);
+			req.Destroy();
+			return;
+		}
+		req = CoreHandler.GetRequest('SoulCubePet', self);
+		if (req)
+		{
+			A_PetCube();
+			req.Destroy();
+			return;
+		}
+
+		// ------------------------------------------------------------
+		//
+		// ------------------------------------------------------------
+
 		if (GetAge() % 35 == 0 && PetCount > 0)
 		{
 			PetCount--;
@@ -348,18 +383,7 @@ class HDSoulCube : HDWeapon
 						A_ChangeVelocity(frandom(-0.15, 0.15), frandom(-0.15, 0.15), frandom(0.2, 0.6), CVF_RELATIVE);
 						if (++PetCount == 6)
 						{
-							// [Ace] Because even instruments of total annihilation need emotional support.
-							if (hdsc_archermode)
-							{
-								A_PlayArcherSound(self, !random(0, 5) ? (WeaponStatus[SCProp_TimeWithOwner] > 35 * 60 * 120 && !random(0, 3) ? "PetUltraRare" : "PetRare") : "PetNormal");
-							}
-							PetTicker = 35 * 60 * 5;
-							PetCount = 0;
-							A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
-							for (int i = 0; i < 64; ++i)
-							{
-								A_SpawnParticle(A_GetParticleColor(A_GetCubeLevel()), SPF_RELATIVE, random(35, 70), random(2, 4), random(0, 359), frandom(0, radius), 0, frandom(0, height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
-							}
+							A_PetCube();
 						}
 					}
 					else if (wpn.grabbed != self)
@@ -538,6 +562,22 @@ class HDSoulCube : HDWeapon
 		}
 	}
 
+	private action void A_PetCube()
+	{
+		// [Ace] Because even instruments of total annihilation need emotional support.
+		if (hdsc_archermode)
+		{
+			A_PlayArcherSound(invoker, !random(0, 5) ? (invoker.WeaponStatus[SCProp_TimeWithOwner] > 35 * 60 * 120 && !random(0, 3) ? "PetUltraRare" : "PetRare") : "PetNormal");
+		}
+		invoker.PetTicker = 35 * 60 * 5;
+		invoker.PetCount = 0;
+		invoker.A_StartSound("SC/Activate", CHAN_WEAPON, volume: 0.3);
+		for (int i = 0; i < 64; ++i)
+		{
+			invoker.A_SpawnParticle(A_GetParticleColor(A_GetCubeLevel()), SPF_RELATIVE, random(35, 70), random(2, 4), random(0, 359), frandom(0, radius), 0, frandom(0, height), 0, 0, frandom(0.5, 3), 0, 0, frandom(-0.05, 0));
+		}
+	}
+
 	private action clearscope int A_GetMaxFrag()
 	{
 		int extra = AceCore.CheckForItem(invoker.owner, "HDArcanumTome") ? 10 : 5;
@@ -566,6 +606,7 @@ class HDSoulCube : HDWeapon
 	private int PetTicker;
 	private int JokerTicker;
 	private bool IgnoreMinFrag;
+	private AceCoreHandler CoreHandler;
 
 	Default
 	{
