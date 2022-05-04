@@ -323,34 +323,38 @@ class HDSoulCube : HDWeapon
 		{
 			CoreHandler = AceCoreHandler(EventHandler.Find('AceCoreHandler'));
 		}
-
-		InterfaceRequest req = CoreHandler.GetRequest('DepleteSoulCube', self);
-		if (req)
+		
+		for (int i = 0; i < CoreHandler.Requests.Size(); ++i)
 		{
-			WeaponStatus[SCProp_Frag] = max(0, WeaponStatus[SCProp_Frag] - req.Arg.ToInt());
-			req.Destroy();
-			return;
-		}
-		req = CoreHandler.GetRequest('SoulCubeUp', self);
-		if (req)
-		{
-			A_GainExperience(ExperienceReqs[min(ExperienceReqs.Size() - 1, WeaponStatus[SCProp_CubeLevel])]);
-			req.Destroy();
-			return;
-		}
-		req = CoreHandler.GetRequest('SoulCubePet', self);
-		if (req)
-		{
-			A_PetCube();
-			req.Destroy();
-			return;
-		}
-		req = CoreHandler.GetRequest('ChargeSoulCube', self);
-		if (req)
-		{
-			WeaponStatus[SCProp_Frag] += req.Arg.ToInt();
-			req.Destroy();
-			return;
+			InterfaceRequest req = CoreHandler.Requests[i];
+			if (req.Receiver == self)
+			{
+				switch (req.RequestName)
+				{
+					case 'DrainChargeSoulCube':
+					{
+						int amt = req.Arg.ToInt();
+						if (amt != 0)
+						{
+							WeaponStatus[SCProp_Frag] = max(0, WeaponStatus[SCProp_Frag] + amt);
+						}
+						req.Remove(); i--;
+						break;
+					}
+					case 'SoulCubeUp':
+					{
+						A_GainExperience(ExperienceReqs[min(ExperienceReqs.Size() - 1, WeaponStatus[SCProp_CubeLevel])]);
+						req.Remove(); i--;
+						break;
+					}
+					case 'SoulCubePet':
+					{
+						A_PetCube();
+						req.Remove(); i--;
+						break;
+					}
+				}
+			}
 		}
 
 		// ------------------------------------------------------------
