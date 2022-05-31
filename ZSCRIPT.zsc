@@ -968,7 +968,7 @@ class HDSoulCube : HDWeapon
 							let bat = HDBattery(FindInventory("HDBattery"));
 							if (bat)
 							{
-								int index = AceCore.GetHighestBattery(bat, bat.MaxPerUnit);
+								int index = AceCore.GetHighestMag(bat, bat.MaxPerUnit);
 								if (index > -1)
 								{
 									for (int i = 0; i < 16; ++i)
